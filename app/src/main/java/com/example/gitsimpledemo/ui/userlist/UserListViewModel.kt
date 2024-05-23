@@ -1,5 +1,6 @@
 package com.example.gitsimpledemo.ui.userlist
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -35,6 +36,22 @@ class UserListViewModel(private val repository: UserRepository): ViewModel() {
                 hasMore = initialData.size == 10
             )
         }
+    }
+
+    fun onUpdateSearchState(searchState: Boolean){
+        viewModelScope.launch {
+            uiState = uiState.copy(
+                isSearching = searchState
+            )
+        }
+    }
+
+    fun updateUserListScrollState(scrollState: Boolean){
+        uiState = uiState.copy( isScrolling=scrollState)
+    }
+
+    fun onJudgmentShowTop(isShowTopItem:Boolean){
+        uiState = uiState.copy( isShowTopItem = isShowTopItem )
     }
 
     fun loadMoreData() {

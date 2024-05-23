@@ -20,13 +20,9 @@ import com.example.gitsimpledemo.ui.userlist.UserListScreen
 @Composable
 fun HomeScreen() {
     val navController = rememberNavController()
-    Scaffold(
-//        bottomBar = { BottomBar(navController) }
-    ) { innerPadding ->
-        NavHost(navController, startDestination = Screens.List.route, Modifier.padding(innerPadding)) {
-            composable(Screens.List.route) { UserListScreen() }
-            composable(Screens.Detail.route) { UserDetailScreen() }
-        }
+    NavHost(navController, startDestination = Screens.List.route) {
+        composable(Screens.List.route) { UserListScreen() }
+        composable(Screens.Detail.route) { UserDetailScreen() }
     }
 
 }
