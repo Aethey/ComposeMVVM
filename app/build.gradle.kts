@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.kspRoom)
 }
 
 android {
@@ -78,6 +79,13 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("androidx.compose.material:material:1.6.7")
+//    room
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+
+//    flutter add to app
     debugImplementation( "com.example.git_simple_flutter_moudle:flutter_debug:1.0")
     releaseImplementation ("com.example.git_simple_flutter_moudle:flutter_release:1.0")
     add("profileImplementation", "com.example.flutter_module:flutter_profile:1.0")

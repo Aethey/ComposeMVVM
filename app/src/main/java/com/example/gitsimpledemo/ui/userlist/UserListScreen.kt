@@ -1,5 +1,6 @@
 package com.example.gitsimpledemo.ui.userlist
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -116,6 +117,14 @@ fun UserListScreen(
     fun onCloseSearchWidget(){
         viewModel.onUpdateSearchState(false)
         inputTextWidth.intValue = screenWidth- 24
+    }
+
+
+//    custom back action when isSearching
+//    when isSearching back action -> searchingWidget close & clear searchQuery
+    BackHandler(enabled = state.isSearching) {
+        viewModel.onUpdateSearchState(false)
+        searchQuery.value = ""
     }
 
 //  custom FAB long click event
