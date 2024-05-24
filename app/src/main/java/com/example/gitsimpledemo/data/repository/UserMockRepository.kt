@@ -7,7 +7,7 @@ import com.example.gitsimpledemo.data.mock.MockData
  * Date: 2024/05/23
  * Description:
  */
-class UserRepository(private val mockData: MockData) {
+class UserMockRepository(private val mockData: MockData) {
     private var currentPage = 0
     private val pageSize = 10
 

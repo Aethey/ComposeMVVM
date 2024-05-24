@@ -3,9 +3,7 @@ package com.example.gitsimpledemo.data.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.gitsimpledemo.model.dao.SearchHistoryDao
-import com.example.gitsimpledemo.model.dao.TrieNodeDao
 import com.example.gitsimpledemo.model.entity.SearchHistoryEntity
-import com.example.gitsimpledemo.model.entity.TrieNodeEntity
 
 /**
  * Author: Ryu

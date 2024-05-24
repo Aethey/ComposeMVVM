@@ -1,6 +1,4 @@
-package com.example.gitsimpledemo.data.database
-
-import com.example.gitsimpledemo.model.entity.TrieNodeEntity
+package com.example.gitsimpledemo.util
 
 /**
  * Author: Ryu

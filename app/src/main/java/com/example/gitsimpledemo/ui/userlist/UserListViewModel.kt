@@ -7,13 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.gitsimpledemo.GitSimpleDemoApp
-import com.example.gitsimpledemo.data.database.Trie
-import com.example.gitsimpledemo.data.mock.MockData
-import com.example.gitsimpledemo.data.repository.UserRepository
+import com.example.gitsimpledemo.data.network.api.ApiService
+import com.example.gitsimpledemo.data.network.api.RetrofitManager
+import com.example.gitsimpledemo.data.repository.UserListRepository
 import com.example.gitsimpledemo.model.dao.SearchHistoryDao
 import com.example.gitsimpledemo.model.entity.SearchHistoryEntity
 import com.example.gitsimpledemo.model.entity.SearchType
+import com.example.gitsimpledemo.util.Trie
 import kotlinx.coroutines.launch
 
 /**
@@ -21,7 +21,11 @@ import kotlinx.coroutines.launch
  * Date: 2024/05/23
  * Description:
  */
-class UserListViewModel(private val repository: UserRepository,private val searchHistoryDao: SearchHistoryDao): ViewModel() {
+class UserListViewModel(
+    private val repository: UserListRepository,
+    private val searchHistoryDao: SearchHistoryDao
+) : ViewModel() {
+
     var uiState by mutableStateOf(
         UserListState()
     )
@@ -32,19 +36,14 @@ class UserListViewModel(private val repository: UserRepository,private val searc
 
     private fun loadInitialData() {
         viewModelScope.launch {
-            val initialData = repository.getData(0)
-//            val history = searchHistoryDao.getAllHistorySortedByTime()
-
-            uiState = uiState.copy(
-                items = initialData,
-                currentPage = 1,
-                hasMore = initialData.size == 10,
-//                searchHistory =history,
-//                trie = Trie().apply {
-//                    history.forEach { insert(it.searchQuery) }
-//                }
-            )
-
+            repository.getData(uiState.since).let {
+                uiState = uiState.copy(
+                    userList = it,
+                    currentPage = 1,
+                    hasMore = it.size == 10,
+                    since = it[it.size - 1].id.toInt()
+                )
+            }
         }
     }
 
@@ -54,11 +53,11 @@ class UserListViewModel(private val repository: UserRepository,private val searc
             val trie = Trie().apply {
                 history.forEach { insert(it.searchQuery) }
             }
-            uiState = uiState.copy(trie = trie,searchHistory =history)
+            uiState = uiState.copy(trie = trie, searchHistory = history)
         }
     }
 
-    fun addSearchQuery(query: String,type: SearchType) {
+    fun addSearchQuery(query: String, type: SearchType) {
         viewModelScope.launch {
             val newHistory = SearchHistoryEntity(searchQuery = query, type = type)
             searchHistoryDao.insert(newHistory)
@@ -68,7 +67,6 @@ class UserListViewModel(private val repository: UserRepository,private val searc
         }
     }
 
-
     fun searchQueryUpdate(query: String) {
         if (query.isEmpty()) {
             viewModelScope.launch {
@@ -77,11 +75,17 @@ class UserListViewModel(private val repository: UserRepository,private val searc
             }
         } else {
             val results = uiState.trie.search(query)
-            uiState = uiState.copy(searchHistory = results.map { SearchHistoryEntity(searchQuery = it, timestamp = 0L, type = SearchType.USERNAME) })
+            uiState = uiState.copy(searchHistory = results.map {
+                SearchHistoryEntity(
+                    searchQuery = it,
+                    timestamp = 0L,
+                    type = SearchType.USERNAME
+                )
+            })
         }
     }
 
-    fun onUpdateSearchState(searchState: Boolean){
+    fun onUpdateSearchState(searchState: Boolean) {
         viewModelScope.launch {
             uiState = uiState.copy(
                 isSearching = searchState
@@ -89,44 +93,89 @@ class UserListViewModel(private val repository: UserRepository,private val searc
         }
     }
 
-    fun updateUserListScrollState(scrollState: Boolean){
-        uiState = uiState.copy( isScrolling=scrollState)
+    fun updateUserListScrollState(scrollState: Boolean) {
+        uiState = uiState.copy(isScrolling = scrollState)
     }
 
-    fun onJudgmentShowTop(isShowTopItem:Boolean){
-        uiState = uiState.copy( isShowTopItem = isShowTopItem )
+    fun onJudgmentShowTop(isShowTopItem: Boolean) {
+        uiState = uiState.copy(isShowTopItem = isShowTopItem)
     }
 
     fun loadMoreData() {
         viewModelScope.launch {
-            val moreData = repository.getData(uiState.currentPage)
-            uiState = uiState.copy(
-                items = uiState.items + moreData,
-                currentPage = uiState.currentPage + 1,
-                hasMore = moreData.size == 10
-            )
+            if (uiState.currentSearching == "") {
+                repository.getData(uiState.since).let {
+                    uiState = uiState.copy(
+                        userList = uiState.userList + it,
+                        currentPage = uiState.currentPage + 1,
+                        hasMore = it.size == 10,
+                        since = it[it.size - 1].id.toInt()
+                    )
+                }
+
+            } else {
+                repository.searchUsers(uiState.currentSearching,uiState.since).let {
+                    uiState = uiState.copy(
+                        userList = uiState.userList + it,
+                        currentPage = uiState.currentPage + 1,
+                        hasMore = it.size == 10,
+                        since = it[it.size - 1].id.toInt()
+                    )
+                }
+
+            }
+
+        }
+    }
+
+    fun getSearchUserList(query: String) {
+        viewModelScope.launch {
+            repository.searchUsers(query,0).let {
+                uiState = uiState.copy(
+                    currentPage = 0,
+                    userList = it,
+                    currentSearching = query,
+                    since = it[it.size - 1].id.toInt()
+
+                )
+            }
         }
     }
 
     fun refreshData() {
         viewModelScope.launch {
             uiState = uiState.copy(isRefreshing = true)
-            val refreshedData = repository.getData(0)
-            uiState = uiState.copy(
-                items = refreshedData,
-                isRefreshing = false,
-                currentPage = 1,
-                hasMore = refreshedData.size == 10
-            )
+            if (uiState.currentSearching == "") {
+                repository.getData(0).let {
+                    uiState = uiState.copy(
+                        userList = it,
+                        currentPage = 1,
+                        hasMore = it.size == 10,
+                        isRefreshing = false,
+                        since = it[it.size - 1].id.toInt()
+                    )
+                }
+            } else {
+                repository.searchUsers(uiState.currentSearching,0).let {
+                    uiState = uiState.copy(
+                        userList = it,
+                        currentPage = 1,
+                        hasMore = it.size == 10,
+                        isRefreshing = false,
+                        since = it[it.size - 1].id.toInt()
+                    )
+                }
+            }
         }
     }
+
 }
 
 
-class UserListViewModelFactory(private val searchHistoryDao: SearchHistoryDao) : ViewModelProvider.Factory {
+class UserListViewModelFactory(private val searchHistoryDao: SearchHistoryDao) :
+    ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-        val app = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as GitSimpleDemoApp
-        return UserListViewModel(UserRepository(MockData()),searchHistoryDao) as T
+        return UserListViewModel(UserListRepository(RetrofitManager.createService(ApiService::class.java)), searchHistoryDao) as T
     }
 }

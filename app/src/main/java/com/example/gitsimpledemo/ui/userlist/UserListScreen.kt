@@ -80,6 +80,7 @@ import com.example.gitsimpledemo.GitSimpleDemoApp
 import com.example.gitsimpledemo.R
 import com.example.gitsimpledemo.model.entity.SearchHistoryEntity
 import com.example.gitsimpledemo.model.entity.SearchType
+import com.example.gitsimpledemo.model.entity.UserEntity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -234,9 +235,9 @@ fun UserListScreen(
                             .padding(4.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        items(state.items.size) { itemContent ->
+                        items(state.userList.size) { itemContent ->
                             ListItem {
-                                UserListItemWidget(state.items[itemContent])
+                                UserListItemWidget(state.userList[itemContent])
                             }
                         }
                         if (state.hasMore) {
@@ -315,7 +316,7 @@ fun CustomAppBar(
 
 
 @Composable
-fun UserListItemWidget(content: String) {
+fun UserListItemWidget(content: UserEntity) {
     Box(
         modifier = Modifier
             .height(80.dp)
@@ -339,7 +340,7 @@ fun UserListItemWidget(content: String) {
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data("https://images.pexels.com/photos/23887232/pexels-photo-23887232.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1")
+                    .data(content.avatarUrl)
                     .crossfade(true)
                     .build(),
                 placeholder = painterResource(R.drawable.header_placeholder),
@@ -350,7 +351,7 @@ fun UserListItemWidget(content: String) {
                     .size(48.dp)
             )
 
-            Text(content)
+            Text(content.login)
         }
     }
 }

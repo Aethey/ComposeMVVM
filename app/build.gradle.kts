@@ -77,17 +77,21 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("io.coil-kt:coil-compose:2.6.0")
-    implementation("androidx.compose.material:material:1.6.7")
+    implementation(libs.coil.compose)
+    implementation(libs.androidx.material)
 //    room
-    val room_version = "2.6.1"
-    implementation("androidx.room:room-runtime:$room_version")
-    ksp("androidx.room:room-compiler:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
-
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+//    retrofit2
+    implementation(libs.retrofit)
+    implementation(libs.logging.interceptor)
+//    https://transform.tools/json-to-kotlin
+    implementation(libs.jackson.annotations)
+    implementation(libs.converter.jackson)
 //    flutter add to app
-    debugImplementation( "com.example.git_simple_flutter_moudle:flutter_debug:1.0")
-    releaseImplementation ("com.example.git_simple_flutter_moudle:flutter_release:1.0")
+    debugImplementation( libs.flutter.debug)
+    releaseImplementation (libs.flutter.release)
     add("profileImplementation", "com.example.flutter_module:flutter_profile:1.0")
 
 }
