@@ -1,6 +1,8 @@
 package com.example.gitsimpledemo.ui.userlist
 
 import androidx.compose.foundation.lazy.LazyListState
+import com.example.gitsimpledemo.data.database.Trie
+import com.example.gitsimpledemo.model.entity.SearchHistoryEntity
 
 /**
  * Author: Ryu
@@ -15,4 +17,6 @@ data class UserListState(
     val isSearching: Boolean = false,
     val isScrolling: Boolean = false,
     val isShowTopItem: Boolean = true,
+    val trie: Trie = Trie(),
+    val searchHistory: List<SearchHistoryEntity> = emptyList(),
 )

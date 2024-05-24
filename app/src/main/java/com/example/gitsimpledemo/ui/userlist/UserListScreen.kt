@@ -29,6 +29,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ListItem
 import androidx.compose.material.icons.Icons
@@ -68,12 +70,16 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.gitsimpledemo.GitSimpleDemoApp
 import com.example.gitsimpledemo.R
+import com.example.gitsimpledemo.model.entity.SearchHistoryEntity
+import com.example.gitsimpledemo.model.entity.SearchType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -87,7 +93,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun UserListScreen(
-    viewModel: UserListViewModel = viewModel(factory = UserListViewModelFactory()),
+    viewModel: UserListViewModel = viewModel(
+        factory = UserListViewModelFactory(GitSimpleDemoApp.instance.database.searchHistoryDao())
+    ),
 ) {
 //  initState
     val state = viewModel.uiState
@@ -105,7 +113,6 @@ fun UserListScreen(
     val interactionSource = remember { MutableInteractionSource() }
     val inputTextWidth = remember { mutableIntStateOf(screenWidth) }
 //  mock date
-    val searchHistory = listOf("History 1", "History 2", "History 3")
 //  init function
     fun onShowSearchWidget(){
         if (!state.isSearching) {
@@ -119,6 +126,17 @@ fun UserListScreen(
         inputTextWidth.intValue = screenWidth- 24
     }
 
+    fun searchAction(){
+        viewModel.addSearchQuery(searchQuery.value,SearchType.USERNAME)
+        onCloseSearchWidget()
+    }
+
+    fun onSearchQueryChangeAction(searchQueryText: String){
+        searchQuery.value = searchQueryText
+        viewModel.searchQueryUpdate(searchQueryText)
+
+    }
+
 
 //    custom back action when isSearching
 //    when isSearching back action -> searchingWidget close & clear searchQuery
@@ -127,9 +145,12 @@ fun UserListScreen(
         searchQuery.value = ""
     }
 
-//  custom FAB long click event
+//  init after view build
     LaunchedEffect(interactionSource) {
         var isLongClick = false
+//        build trie after view build
+        viewModel.buildTrie()
+//        custom FAB long click event
         interactionSource.interactions.collectLatest { interaction ->
             when (interaction) {
                 is PressInteraction.Press -> {
@@ -180,7 +201,9 @@ fun UserListScreen(
                 onCloseSearchWidget = { onCloseSearchWidget() },
                 searchQuery = searchQuery,
                 inputTextWidth = inputTextWidth,
-                state = state
+                state = state,
+                onSearch = { searchAction() },
+                onSearchQueryChange = { onSearchQueryChangeAction(it) }
             )
         },
         floatingActionButton = {
@@ -191,7 +214,7 @@ fun UserListScreen(
             SearchView(
                 paddingValues = paddingValues,
                 state = state,
-                searchHistory=searchHistory,
+                searchHistory=state.searchHistory,
                 searchQuery=searchQuery,
                 viewModel=viewModel)
             AnimatedVisibility(
@@ -242,6 +265,8 @@ fun UserListScreen(
 fun CustomAppBar(
     onShowSearchWidget: () -> Unit,
     onCloseSearchWidget: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onSearch: () -> Unit,
     searchQuery: MutableState<String>,
     inputTextWidth: MutableIntState,
     state:UserListState
@@ -261,12 +286,15 @@ fun CustomAppBar(
                 }
                 SearchBar(
                     searchQuery = searchQuery.value,
-                    onSearchQueryChange = { searchQuery.value = it },
+                    onSearchQueryChange = { onSearchQueryChange(it) },
                     inputTextWidth = inputTextWidth.intValue - 40,
                     onOpenKeyboard = {
                         onShowSearchWidget()
                     },
-                    keyboardEnable = state.isSearching
+                    keyboardEnable = state.isSearching,
+                    onSearch = {
+                        onSearch()
+                    }
                 )
                 if (state.isSearching) {
                     IconButton(onClick = {
@@ -331,7 +359,7 @@ fun UserListItemWidget(content: String) {
 @Composable
 fun SearchView(
     state: UserListState,
-    searchHistory: List<String>,
+    searchHistory: List<SearchHistoryEntity>,
     searchQuery: MutableState<String>,
     viewModel: UserListViewModel,
     paddingValues: PaddingValues){
@@ -349,14 +377,15 @@ fun SearchView(
                     .fillMaxSize()
             ) {
                 items(searchHistory.size) { i ->
+
                     ListItem {
                         Text(
-                            text = searchHistory[i],
+                            text = searchHistory[i].searchQuery,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp)
                                 .clickable {
-                                    searchQuery.value = searchHistory[i]
+                                    searchQuery.value = searchHistory[i].searchQuery
                                     viewModel.onUpdateSearchState(false)
                                 }
                         )
@@ -372,7 +401,7 @@ fun SearchView(
 @Composable
 fun CustomFloatingActionButton(state: UserListState, interactionSource: MutableInteractionSource){
     AnimatedVisibility(
-        visible =!state.isScrolling,
+        visible =!state.isScrolling && !state.isSearching,
         enter = scaleIn(),
         exit = scaleOut(),
     ) {
@@ -417,7 +446,8 @@ fun SearchBar(
     onSearchQueryChange: (String) -> Unit,
     inputTextWidth: Int,
     onOpenKeyboard: () -> Unit,
-    keyboardEnable: Boolean
+    keyboardEnable: Boolean,
+    onSearch: () -> Unit,
 ) {
 
     val focusRequester = remember { FocusRequester() }
@@ -440,6 +470,14 @@ fun SearchBar(
             .clickable(interactionSource = interactionSource, indication = null) {
                 onOpenKeyboard()
             },
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = if (searchQuery.isEmpty()) ImeAction.Default else ImeAction.Search
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                onSearch()
+            }
+        ),
         decorationBox = { innerTextField ->
             if (searchQuery.isEmpty()) {
                 Text(

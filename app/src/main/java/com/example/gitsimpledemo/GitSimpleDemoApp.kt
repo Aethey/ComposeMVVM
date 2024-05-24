@@ -1,6 +1,8 @@
 package com.example.gitsimpledemo
 
 import android.app.Application
+import androidx.room.Room
+import com.example.gitsimpledemo.data.database.AppDatabase
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -11,10 +13,23 @@ import io.flutter.embedding.engine.dart.DartExecutor
  * Description:
  */
 class GitSimpleDemoApp: Application() {
-    lateinit var flutterEngine : FlutterEngine
+    companion object {
+        lateinit var instance: GitSimpleDemoApp
+            private set
+    }
+
+    private lateinit var flutterEngine : FlutterEngine
+    lateinit var database: AppDatabase
+        private set
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
+//        Instantiate a room database
+        database = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "app-database"
+        ).build()
 
         // Instantiate a FlutterEngine.
         flutterEngine = FlutterEngine(this)
