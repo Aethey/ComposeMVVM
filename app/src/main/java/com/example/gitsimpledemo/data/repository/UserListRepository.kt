@@ -2,10 +2,10 @@ package com.example.gitsimpledemo.data.repository
 
 import com.example.gitsimpledemo.Constants
 import com.example.gitsimpledemo.data.network.api.ApiService
+import com.example.gitsimpledemo.data.network.api.NetworkResult
+import com.example.gitsimpledemo.data.network.api.callApiService
 import com.example.gitsimpledemo.model.entity.UserEntity
 import com.example.gitsimpledemo.model.entity.UserEntityList
-import com.example.gitsimpledemo.model.entity.UserEntitySearchList
-import retrofit2.HttpException
 
 /**
  * Author: Ryu
@@ -15,19 +15,15 @@ import retrofit2.HttpException
 class UserListRepository(private val apiService: ApiService) {
     private val pageSize = Constants.PAGE_SIZE
 
-    suspend fun getData(since:Int): UserEntityList {
-        return try {
+    suspend fun getData(since:Long): NetworkResult<UserEntityList> {
+        return callApiService {
             apiService.listUsers(perPage = pageSize, since = since )
-        } catch (e: HttpException) {
-            emptyList()
         }
     }
 
-    suspend fun searchUsers(query: String,since:Int): UserEntityList {
-        return try {
+    suspend fun searchUsers(query: String,since:Long): NetworkResult<List<UserEntity>> {
+        return callApiService {
             apiService.searchUsers(perPage = pageSize,query = query,since = since).items
-        }catch (e: HttpException) {
-            emptyList()
         }
     }
 }

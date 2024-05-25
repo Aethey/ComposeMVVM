@@ -5,10 +5,14 @@ import com.example.gitsimpledemo.model.entity.UserDetailEntity
 import com.example.gitsimpledemo.model.entity.UserEntity
 import com.example.gitsimpledemo.model.entity.UserEntityList
 import com.example.gitsimpledemo.model.entity.UserEntitySearchList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.io.IOException
 
 /**
  * Author: Ryu
@@ -21,7 +25,7 @@ interface ApiService {
     @GET("users")
     suspend fun listUsers(
         @Query("per_page") perPage: Int,
-        @Query("since") since: Int
+        @Query("since") since: Long
     ): UserEntityList
 
     // single user
@@ -35,7 +39,7 @@ interface ApiService {
     suspend fun searchUsers(
         @Query("q") query: String,
         @Query("per_page") perPage: Int,
-        @Query("since") since: Int
+        @Query("since") since: Long
     ): UserEntitySearchList
 
     // get repositories list without fork
@@ -43,6 +47,30 @@ interface ApiService {
     suspend fun listRepositories(
         @Query("q") query: String,
         @Query("per_page") perPage: Int,
-        @Query("since") since: Int
+        @Query("since") since: Long
     ): ResponseListEntity
+}
+
+suspend fun <T> callApiService(apiCall: suspend () -> T): NetworkResult<T> {
+    return withContext(Dispatchers.IO) {
+        try {
+            NetworkResult.Success(apiCall.invoke())
+        } catch (throwable: Throwable) {
+            when (throwable) {
+                is IOException -> NetworkResult.Error(IOException("Network Error"))
+                is HttpException -> {
+                    val code = throwable.code()
+                    val errorResponse = throwable.response()?.errorBody()?.string()
+                    NetworkResult.Error(IOException("HTTP $code $errorResponse"))
+                }
+                else -> NetworkResult.Error(IOException("Unknown Error"))
+            }
+        }
+    }
+}
+
+sealed class NetworkResult<out T> {
+    data class Success<out T>(val data: T) : NetworkResult<T>()
+    data class Error(val exception: Throwable) : NetworkResult<Nothing>()
+    data object Loading : NetworkResult<Nothing>()
 }

@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,8 +27,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -60,8 +59,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -71,16 +68,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.gitsimpledemo.GitSimpleDemoApp
 import com.example.gitsimpledemo.R
 import com.example.gitsimpledemo.model.entity.SearchHistoryEntity
 import com.example.gitsimpledemo.model.entity.SearchType
-import com.example.gitsimpledemo.model.entity.UserEntity
+import com.example.gitsimpledemo.ui.components.ShowCustomToast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -113,26 +109,28 @@ fun UserListScreen(
     val coroutineScope = rememberCoroutineScope()
     val interactionSource = remember { MutableInteractionSource() }
     val inputTextWidth = remember { mutableIntStateOf(screenWidth) }
-//  mock date
+
+    //  mock date
 //  init function
-    fun onShowSearchWidget(){
+    fun onShowSearchWidget() {
         if (!state.isSearching) {
-            inputTextWidth.intValue = screenWidth- 90
+            inputTextWidth.intValue = screenWidth - 90
         }
         viewModel.onUpdateSearchState(true)
     }
 
-    fun onCloseSearchWidget(){
+    fun onCloseSearchWidget() {
         viewModel.onUpdateSearchState(false)
-        inputTextWidth.intValue = screenWidth- 24
+        inputTextWidth.intValue = screenWidth - 24
     }
 
-    fun searchAction(){
-        viewModel.addSearchQuery(searchQuery.value,SearchType.USERNAME)
+    fun searchAction() {
+        viewModel.addSearchQuery(searchQuery.value, SearchType.USERNAME)
+        viewModel.getSearchUserList(searchQuery.value)
         onCloseSearchWidget()
     }
 
-    fun onSearchQueryChangeAction(searchQueryText: String){
+    fun onSearchQueryChangeAction(searchQueryText: String) {
         searchQuery.value = searchQueryText
         viewModel.searchQueryUpdate(searchQueryText)
 
@@ -155,7 +153,7 @@ fun UserListScreen(
         interactionSource.interactions.collectLatest { interaction ->
             when (interaction) {
                 is PressInteraction.Press -> {
-                    if(listState.firstVisibleItemIndex != 0){
+                    if (listState.firstVisibleItemIndex != 0) {
                         isLongClick = false
                         delay(500)
                         isLongClick = true
@@ -194,70 +192,103 @@ fun UserListScreen(
             }
     }
 //    init view
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            CustomAppBar(
-                onShowSearchWidget = { onShowSearchWidget() },
-                onCloseSearchWidget = { onCloseSearchWidget() },
-                searchQuery = searchQuery,
-                inputTextWidth = inputTextWidth,
-                state = state,
-                onSearch = { searchAction() },
-                onSearchQueryChange = { onSearchQueryChangeAction(it) }
-            )
-        },
-        floatingActionButton = {
-            CustomFloatingActionButton(state, interactionSource)
-        }
-    ) { paddingValues ->
-        Column {
-            SearchView(
-                paddingValues = paddingValues,
-                state = state,
-                searchHistory=state.searchHistory,
-                searchQuery=searchQuery,
-                viewModel=viewModel)
-            AnimatedVisibility(
-                visible = !state.isSearching,
-                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = paddingValues.calculateTopPadding())
-                        .pullRefresh(pullRefreshState)
+    AnimatedVisibility(
+        visible = !state.isError,
+        enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+        exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
+    ) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                CustomAppBar(
+                    onShowSearchWidget = { onShowSearchWidget() },
+                    onCloseSearchWidget = { onCloseSearchWidget() },
+                    searchQuery = searchQuery,
+                    inputTextWidth = inputTextWidth,
+                    state = state,
+                    onSearch = { searchAction() },
+                    onSearchQueryChange = { onSearchQueryChangeAction(it) }
+                )
+            },
+            floatingActionButton = {
+                CustomFloatingActionButton(state, interactionSource)
+            }
+        ) { paddingValues ->
+
+            Column {
+                SearchView(
+                    paddingValues = paddingValues,
+                    state = state,
+                    searchHistory = state.searchHistory,
+                    searchQuery = searchQuery,
+                    viewModel = viewModel,
+                    onSearch = { searchAction() },
+                )
+                AnimatedVisibility(
+                    visible = !state.isSearching,
+                    enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                    exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
                 ) {
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier
-                            .padding(4.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        items(state.userList.size) { itemContent ->
-                            ListItem {
-                                UserListItemWidget(state.userList[itemContent])
-                            }
-                        }
-                        if (state.hasMore) {
-                            println("has more a has more")
-                            item {
-                                LaunchedEffect(Unit) {
-                                    viewModel.loadMoreData()
+                    //                user list view
+                    Box {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(
+                                    top = paddingValues.calculateTopPadding(),
+                                    start = 4.dp,
+                                    end = 4.dp,
+                                    bottom = 4.dp
+                                )
+                                .pullRefresh(pullRefreshState),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            items(state.userList.size) { itemContent ->
+                                ListItem {
+                                    UserListItemCompose(state.userList[itemContent])
                                 }
-                                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                            }
+                            if (state.hasMore) {
+                                item {
+                                    LaunchedEffect(Unit) {
+                                        viewModel.loadMoreData()
+                                    }
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(), // 使 Box 填充父容器的整个空间
+                                        contentAlignment = Alignment.Center // 使内容居中
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier
+                                                .padding(6.dp)
+                                                .size(32.dp),
+                                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                                        )
+                                    }
+                                }
                             }
                         }
+                        ShowCustomToast(
+                            showToastState = !state.hasMore,
+                            message = "NO MORE DATA",
+                        )
+                        PullRefreshIndicator(
+                            refreshing = state.isRefreshing,
+                            state = pullRefreshState,
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
                     }
-                    PullRefreshIndicator(
-                        refreshing = state.isRefreshing,
-                        state = pullRefreshState,
-                        modifier = Modifier.align(Alignment.TopCenter)
-                    )
                 }
             }
         }
+    }
+    AnimatedVisibility(
+        visible = state.isError,
+        enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+        exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
+    ) {
+        ErrorPage(onRefresh = { viewModel.refreshData() })
     }
 }
 
@@ -270,13 +301,14 @@ fun CustomAppBar(
     onSearch: () -> Unit,
     searchQuery: MutableState<String>,
     inputTextWidth: MutableIntState,
-    state:UserListState
-    ){
+    state: UserListState
+) {
     TopAppBar(
         title = {
             Row(
                 modifier = Modifier
-                    .padding(end = 8.dp).fillMaxSize(),
+                    .padding(end = 8.dp)
+                    .fillMaxSize(),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -300,7 +332,6 @@ fun CustomAppBar(
                 if (state.isSearching) {
                     IconButton(onClick = {
                         onCloseSearchWidget()
-//                                need clear searchQuery
                         searchQuery.value = ""
                     }, modifier = Modifier.size(40.dp)) {
                         Icon(
@@ -314,48 +345,6 @@ fun CustomAppBar(
     )
 }
 
-
-@Composable
-fun UserListItemWidget(content: UserEntity) {
-    Box(
-        modifier = Modifier
-            .height(80.dp)
-            .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(12.dp))
-//        .clip(RoundedCornerShape(16.dp))
-            .shadow(
-                2.dp,
-                RoundedCornerShape(12.dp),
-                ambientColor = Color.Blue,
-                spotColor = Color.White
-            )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(content.avatarUrl)
-                    .crossfade(true)
-                    .build(),
-                placeholder = painterResource(R.drawable.header_placeholder),
-                contentDescription = "description",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(48.dp)
-            )
-
-            Text(content.login)
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SearchView(
@@ -363,7 +352,9 @@ fun SearchView(
     searchHistory: List<SearchHistoryEntity>,
     searchQuery: MutableState<String>,
     viewModel: UserListViewModel,
-    paddingValues: PaddingValues){
+    paddingValues: PaddingValues,
+    onSearch: () -> Unit,
+) {
     AnimatedVisibility(
         visible = state.isSearching,
         enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
@@ -373,23 +364,41 @@ fun SearchView(
 //                    modifier = Modifier.background(Color.Black)
         ) {
             Spacer(modifier = Modifier.height(paddingValues.calculateTopPadding()))
+//            search history list
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(searchHistory.size) { i ->
-
                     ListItem {
-                        Text(
-                            text = searchHistory[i].searchQuery,
+                        Row(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
+                                .height(48.dp)
                                 .clickable {
                                     searchQuery.value = searchHistory[i].searchQuery
-                                    viewModel.onUpdateSearchState(false)
-                                }
-                        )
+                                    onSearch()
+                                },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            println("searchHistory is ${searchHistory[i].searchQuery}")
+                            Image(
+                                painter = painterResource(id = R.drawable.header_placeholder),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .height(24.dp)
+                                    .width(24.dp),
+                            )
+                            Text(
+                                text = searchHistory[i].searchQuery,
+                                maxLines = 1,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier
+                                    .width(300.dp)
+                                    .padding(start = 8.dp)
+
+                            )
+                        }
                     }
                 }
             }
@@ -398,11 +407,10 @@ fun SearchView(
     }
 }
 
-
 @Composable
-fun CustomFloatingActionButton(state: UserListState, interactionSource: MutableInteractionSource){
+fun CustomFloatingActionButton(state: UserListState, interactionSource: MutableInteractionSource) {
     AnimatedVisibility(
-        visible =!state.isScrolling && !state.isSearching,
+        visible = !state.isScrolling && !state.isSearching,
         enter = scaleIn(),
         exit = scaleOut(),
     ) {
@@ -487,5 +495,6 @@ fun SearchBar(
                 )
             }
             innerTextField()
-        })
+        }
+    )
 }

@@ -2,6 +2,7 @@ package com.example.gitsimpledemo.model.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
@@ -10,7 +11,10 @@ import androidx.room.PrimaryKey
  * Description:
  */
 
-@Entity(tableName = "search_history")
+@Entity(
+    tableName = "search_history",
+    indices = [Index(value = ["search_query"], unique = true)]
+)
 data class SearchHistoryEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "search_query") val searchQuery: String,

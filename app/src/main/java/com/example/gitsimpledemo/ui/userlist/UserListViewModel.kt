@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.gitsimpledemo.Constants
 import com.example.gitsimpledemo.data.network.api.ApiService
+import com.example.gitsimpledemo.data.network.api.NetworkResult
 import com.example.gitsimpledemo.data.network.api.RetrofitManager
 import com.example.gitsimpledemo.data.repository.UserListRepository
 import com.example.gitsimpledemo.model.dao.SearchHistoryDao
@@ -26,25 +28,14 @@ class UserListViewModel(
     private val searchHistoryDao: SearchHistoryDao
 ) : ViewModel() {
 
-    var uiState by mutableStateOf(
-        UserListState()
-    )
+    var uiState by mutableStateOf(UserListState())
 
     init {
         loadInitialData()
     }
 
     private fun loadInitialData() {
-        viewModelScope.launch {
-            repository.getData(uiState.since).let {
-                uiState = uiState.copy(
-                    userList = it,
-                    currentPage = 1,
-                    hasMore = it.size == 10,
-                    since = it[it.size - 1].id.toInt()
-                )
-            }
-        }
+        fetchData(uiState.since, clearList = true)
     }
 
     fun buildTrie() {
@@ -58,23 +49,21 @@ class UserListViewModel(
     }
 
     fun addSearchQuery(query: String, type: SearchType) {
-        viewModelScope.launch {
-            val newHistory = SearchHistoryEntity(searchQuery = query, type = type)
-            searchHistoryDao.insert(newHistory)
-            uiState.trie.insert(query)
-            val updatedHistory = searchHistoryDao.getAllHistorySortedByTime()
-            uiState = uiState.copy(searchHistory = updatedHistory)
-        }
+       if(query.isNotBlank()){
+           viewModelScope.launch {
+               val newHistory = SearchHistoryEntity(searchQuery = query.trim(), type = type)
+               searchHistoryDao.upsert(newHistory)
+               uiState.trie.insert(query.trim())
+               updateSearchHistory()
+           }
+       }
     }
 
     fun searchQueryUpdate(query: String) {
         if (query.isEmpty()) {
-            viewModelScope.launch {
-                val history = searchHistoryDao.getAllHistorySortedByTime()
-                uiState = uiState.copy(searchHistory = history)
-            }
+            updateSearchHistory()
         } else {
-            val results = uiState.trie.search(query)
+            val results = uiState.trie.search(query.trim())
             uiState = uiState.copy(searchHistory = results.map {
                 SearchHistoryEntity(
                     searchQuery = it,
@@ -87,9 +76,7 @@ class UserListViewModel(
 
     fun onUpdateSearchState(searchState: Boolean) {
         viewModelScope.launch {
-            uiState = uiState.copy(
-                isSearching = searchState
-            )
+            uiState = uiState.copy(isSearching = searchState)
         }
     }
 
@@ -102,80 +89,81 @@ class UserListViewModel(
     }
 
     fun loadMoreData() {
-        viewModelScope.launch {
-            if (uiState.currentSearching == "") {
-                repository.getData(uiState.since).let {
-                    uiState = uiState.copy(
-                        userList = uiState.userList + it,
-                        currentPage = uiState.currentPage + 1,
-                        hasMore = it.size == 10,
-                        since = it[it.size - 1].id.toInt()
-                    )
-                }
-
-            } else {
-                repository.searchUsers(uiState.currentSearching,uiState.since).let {
-                    uiState = uiState.copy(
-                        userList = uiState.userList + it,
-                        currentPage = uiState.currentPage + 1,
-                        hasMore = it.size == 10,
-                        since = it[it.size - 1].id.toInt()
-                    )
-                }
-
-            }
-
-        }
+        val query = uiState.currentSearching.ifEmpty { null }
+        fetchData(uiState.since, query = query, append = true)
     }
 
     fun getSearchUserList(query: String) {
-        viewModelScope.launch {
-            repository.searchUsers(query,0).let {
-                uiState = uiState.copy(
-                    currentPage = 0,
-                    userList = it,
-                    currentSearching = query,
-                    since = it[it.size - 1].id.toInt()
-
-                )
-            }
-        }
+        fetchData(0, query = query, clearList = true)
     }
 
     fun refreshData() {
+        uiState = uiState.copy(isRefreshing = true)
+        fetchData(
+            0,
+            query = uiState.currentSearching.ifEmpty { null }
+        )
+    }
+
+    private fun updateSearchHistory() {
         viewModelScope.launch {
-            uiState = uiState.copy(isRefreshing = true)
-            if (uiState.currentSearching == "") {
-                repository.getData(0).let {
+            val history = searchHistoryDao.getAllHistorySortedByTime()
+            println("history is $history")
+            uiState = uiState.copy(searchHistory = history)
+        }
+    }
+
+    private fun fetchData(
+        since: Long,
+        query: String? = null,
+        append: Boolean = false,
+        clearList: Boolean = false
+    ) {
+        viewModelScope.launch {
+            val result = if (query.isNullOrBlank()) {
+                repository.getData(since)
+            } else {
+                println("query is $query")
+                repository.searchUsers(query.trim(), since)
+            }
+            when (result) {
+                is NetworkResult.Success -> {
                     uiState = uiState.copy(
-                        userList = it,
-                        currentPage = 1,
-                        hasMore = it.size == 10,
+                        userList = if (append) uiState.userList + result.data else result.data,
+                        currentPage = if (clearList) 1 else uiState.currentPage + 1,
+                        hasMore = result.data.size == Constants.PAGE_SIZE,
+                        since =if (result.data.isEmpty()) 1 else result.data.last().id,
                         isRefreshing = false,
-                        since = it[it.size - 1].id.toInt()
+                        isError = false
                     )
                 }
-            } else {
-                repository.searchUsers(uiState.currentSearching,0).let {
+
+                is NetworkResult.Error -> {
+                    println("NetworkResult.Error error")
                     uiState = uiState.copy(
-                        userList = it,
-                        currentPage = 1,
-                        hasMore = it.size == 10,
-                        isRefreshing = false,
-                        since = it[it.size - 1].id.toInt()
+                        errorMessage = result.exception.message ?: "net error",
+                        isRefreshing = false ,
+                        isLoading = false,
+                        hasMore= false,
+                        isError = true
                     )
+                }
+
+                NetworkResult.Loading -> {
+                    // Handle loading state if needed
                 }
             }
         }
     }
-
 }
-
 
 class UserListViewModelFactory(private val searchHistoryDao: SearchHistoryDao) :
     ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-        return UserListViewModel(UserListRepository(RetrofitManager.createService(ApiService::class.java)), searchHistoryDao) as T
+        return UserListViewModel(
+            UserListRepository(RetrofitManager.createService(ApiService::class.java)),
+            searchHistoryDao
+        ) as T
     }
 }
