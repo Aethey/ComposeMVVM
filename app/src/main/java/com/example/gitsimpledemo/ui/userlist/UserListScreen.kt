@@ -1,5 +1,6 @@
 package com.example.gitsimpledemo.ui.userlist
 
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -8,20 +9,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -34,6 +29,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ListItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -51,7 +47,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,21 +57,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.gitsimpledemo.GitSimpleDemoApp
-import com.example.gitsimpledemo.R
-import com.example.gitsimpledemo.model.entity.SearchHistoryEntity
 import com.example.gitsimpledemo.model.entity.SearchType
+import com.example.gitsimpledemo.model.entity.SearchViewType
+import com.example.gitsimpledemo.route.Screens
 import com.example.gitsimpledemo.ui.components.ShowCustomToast
+import com.example.gitsimpledemo.ui.userlist.components.AlertDialogExample
+import com.example.gitsimpledemo.ui.userlist.components.ErrorPage
+import com.example.gitsimpledemo.ui.userlist.components.SearchView
+import com.example.gitsimpledemo.ui.userlist.components.UserListItemCompose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -93,19 +90,22 @@ fun UserListScreen(
     viewModel: UserListViewModel = viewModel(
         factory = UserListViewModelFactory(GitSimpleDemoApp.instance.database.searchHistoryDao())
     ),
+    navController: NavHostController
 ) {
 //  initState
     val state = viewModel.uiState
     val listState = rememberLazyListState()
     val pullRefreshState = rememberPullRefreshState(
         refreshing = state.isRefreshing,
-        onRefresh = { viewModel.refreshData() }
+        onRefresh = { viewModel.onRefreshData() }
     )
+    val openAlertDialog = remember { mutableStateOf(false) }
+    var shouldExit = remember { mutableStateOf(false) }
 //  init widget param
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+    val screenHeight = configuration.screenHeightDp
 //  init data
-    val searchQuery = remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
     val interactionSource = remember { MutableInteractionSource() }
     val inputTextWidth = remember { mutableIntStateOf(screenWidth) }
@@ -116,39 +116,50 @@ fun UserListScreen(
         if (!state.isSearching) {
             inputTextWidth.intValue = screenWidth - 90
         }
-        viewModel.onUpdateSearchState(true)
+        viewModel.onUpdateSearchViewState(SearchViewType.OPEN)
     }
 
     fun onCloseSearchWidget() {
-        viewModel.onUpdateSearchState(false)
+        viewModel.onUpdateSearchViewState(SearchViewType.COMMON_CLOSE)
         inputTextWidth.intValue = screenWidth - 24
     }
 
-    fun searchAction() {
-        viewModel.addSearchQuery(searchQuery.value, SearchType.USERNAME)
-        viewModel.getSearchUserList(searchQuery.value)
+    fun onSearch(searchQuery: String?) {
+        when(searchQuery){
+            null ->viewModel.onKeyboardSearch(SearchType.USERNAME)
+            else->viewModel.onClickSearch(SearchType.USERNAME,searchQuery)
+        }
         onCloseSearchWidget()
     }
 
-    fun onSearchQueryChangeAction(searchQueryText: String) {
-        searchQuery.value = searchQueryText
-        viewModel.searchQueryUpdate(searchQueryText)
-
+    fun onClearHistory() {
+        viewModel.onClearSearchHistory()
     }
 
+    fun onSearchQueryChangeAction(searchQueryText: String) {
+        viewModel.onRealtimeUpdateSearchQuery(searchQueryText.trim())
+    }
 
 //    custom back action when isSearching
 //    when isSearching back action -> searchingWidget close & clear searchQuery
-    BackHandler(enabled = state.isSearching) {
-        viewModel.onUpdateSearchState(false)
-        searchQuery.value = ""
+    BackHandler(true) {
+        if(state.isSearching){
+            viewModel.onUpdateSearchViewState(SearchViewType.COMMON_CLOSE)
+        }
+        else{
+            openAlertDialog.value = true
+        }
+    }
+    if (shouldExit.value) {
+        val context = LocalContext.current
+        (context as ComponentActivity).finishAffinity()
     }
 
 //  init after view build
     LaunchedEffect(interactionSource) {
         var isLongClick = false
 //        build trie after view build
-        viewModel.buildTrie()
+        viewModel.onBuildTrie()
 //        custom FAB long click event
         interactionSource.interactions.collectLatest { interaction ->
             when (interaction) {
@@ -186,12 +197,29 @@ fun UserListScreen(
             .distinctUntilChanged()
             .collect { scrolling ->
                 run {
-                    viewModel.updateUserListScrollState(scrolling)
-                    viewModel.onJudgmentShowTop(listState.firstVisibleItemIndex == 0)
+                    viewModel.onUpdateUserListScrollState(scrolling)
+                    viewModel.onCheckListIsShowTop(listState.firstVisibleItemIndex == 0)
                 }
             }
     }
 //    init view
+    when {
+        // ...
+        openAlertDialog.value -> {
+            AlertDialogExample(
+                onDismissRequest = { openAlertDialog.value = false },
+                onConfirmation = {
+                    openAlertDialog.value = false
+                    shouldExit.value = true
+                },
+                dialogTitle = "Alert dialog example",
+                dialogText = "This is an example of an alert dialog with buttons.",
+                icon = Icons.Default.Info
+            )
+        }
+    }
+
+//    main view
     AnimatedVisibility(
         visible = !state.isError,
         enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
@@ -203,10 +231,10 @@ fun UserListScreen(
                 CustomAppBar(
                     onShowSearchWidget = { onShowSearchWidget() },
                     onCloseSearchWidget = { onCloseSearchWidget() },
-                    searchQuery = searchQuery,
+                    searchQuery = state.searchQuery,
                     inputTextWidth = inputTextWidth,
                     state = state,
-                    onSearch = { searchAction() },
+                    onSearch = { onSearch(null) },
                     onSearchQueryChange = { onSearchQueryChangeAction(it) }
                 )
             },
@@ -220,9 +248,9 @@ fun UserListScreen(
                     paddingValues = paddingValues,
                     state = state,
                     searchHistory = state.searchHistory,
-                    searchQuery = searchQuery,
-                    viewModel = viewModel,
-                    onSearch = { searchAction() },
+                    onSearch = { onSearch(it) },
+                    height = screenHeight,
+                    onClearHistory = {onClearHistory()}
                 )
                 AnimatedVisibility(
                     visible = !state.isSearching,
@@ -245,14 +273,19 @@ fun UserListScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             items(state.userList.size) { itemContent ->
-                                ListItem {
+                                ListItem(
+                                        modifier = Modifier.clickable {
+                                            navController.navigate(Screens.Detail.route)
+
+                                        }
+                                ) {
                                     UserListItemCompose(state.userList[itemContent])
                                 }
                             }
                             if (state.hasMore) {
                                 item {
                                     LaunchedEffect(Unit) {
-                                        viewModel.loadMoreData()
+                                        viewModel.onLoadMoreData()
                                     }
                                     Box(
                                         modifier = Modifier.fillMaxSize(), // 使 Box 填充父容器的整个空间
@@ -288,7 +321,7 @@ fun UserListScreen(
         enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
         exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
     ) {
-        ErrorPage(onRefresh = { viewModel.refreshData() })
+        ErrorPage(onRefresh = { viewModel.onRefreshData() })
     }
 }
 
@@ -299,7 +332,7 @@ fun CustomAppBar(
     onCloseSearchWidget: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
-    searchQuery: MutableState<String>,
+    searchQuery: String,
     inputTextWidth: MutableIntState,
     state: UserListState
 ) {
@@ -318,7 +351,7 @@ fun CustomAppBar(
                     Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
                 }
                 SearchBar(
-                    searchQuery = searchQuery.value,
+                    searchQuery = searchQuery,
                     onSearchQueryChange = { onSearchQueryChange(it) },
                     inputTextWidth = inputTextWidth.intValue - 40,
                     onOpenKeyboard = {
@@ -332,7 +365,6 @@ fun CustomAppBar(
                 if (state.isSearching) {
                     IconButton(onClick = {
                         onCloseSearchWidget()
-                        searchQuery.value = ""
                     }, modifier = Modifier.size(40.dp)) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -343,68 +375,6 @@ fun CustomAppBar(
             }
         },
     )
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun SearchView(
-    state: UserListState,
-    searchHistory: List<SearchHistoryEntity>,
-    searchQuery: MutableState<String>,
-    viewModel: UserListViewModel,
-    paddingValues: PaddingValues,
-    onSearch: () -> Unit,
-) {
-    AnimatedVisibility(
-        visible = state.isSearching,
-        enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
-        exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
-    ) {
-        Column(
-//                    modifier = Modifier.background(Color.Black)
-        ) {
-            Spacer(modifier = Modifier.height(paddingValues.calculateTopPadding()))
-//            search history list
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                items(searchHistory.size) { i ->
-                    ListItem {
-                        Row(
-                            modifier = Modifier
-                                .height(48.dp)
-                                .clickable {
-                                    searchQuery.value = searchHistory[i].searchQuery
-                                    onSearch()
-                                },
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            println("searchHistory is ${searchHistory[i].searchQuery}")
-                            Image(
-                                painter = painterResource(id = R.drawable.header_placeholder),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .height(24.dp)
-                                    .width(24.dp),
-                            )
-                            Text(
-                                text = searchHistory[i].searchQuery,
-                                maxLines = 1,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier
-                                    .width(300.dp)
-                                    .padding(start = 8.dp)
-
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-    }
 }
 
 @Composable
@@ -480,12 +450,10 @@ fun SearchBar(
                 onOpenKeyboard()
             },
         keyboardOptions = KeyboardOptions.Default.copy(
-            imeAction = if (searchQuery.isEmpty()) ImeAction.Default else ImeAction.Search
+            imeAction = ImeAction.Search
         ),
         keyboardActions = KeyboardActions(
-            onSearch = {
-                onSearch()
-            }
+            onSearch = { onSearch() }
         ),
         decorationBox = { innerTextField ->
             if (searchQuery.isEmpty()) {
@@ -498,3 +466,4 @@ fun SearchBar(
         }
     )
 }
+

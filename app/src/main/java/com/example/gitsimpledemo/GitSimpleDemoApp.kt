@@ -3,6 +3,7 @@ package com.example.gitsimpledemo
 import android.app.Application
 import androidx.room.Room
 import com.example.gitsimpledemo.data.database.AppDatabase
+import com.example.gitsimpledemo.data.network.api.RetrofitManager
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -26,6 +27,7 @@ class GitSimpleDemoApp: Application() {
         super.onCreate()
         instance = this
 //        Instantiate a room database
+        RetrofitManager.initialize(this)
         database = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "app-database"

@@ -1,5 +1,6 @@
 package com.example.gitsimpledemo.data.network.api
 
+import com.example.gitsimpledemo.data.repository.UserDetailResponse
 import com.example.gitsimpledemo.model.entity.ResponseListEntity
 import com.example.gitsimpledemo.model.entity.UserDetailEntity
 import com.example.gitsimpledemo.model.entity.UserEntity
@@ -39,7 +40,7 @@ interface ApiService {
     suspend fun searchUsers(
         @Query("q") query: String,
         @Query("per_page") perPage: Int,
-        @Query("since") since: Long
+        @Query("page") page: Int,
     ): UserEntitySearchList
 
     // get repositories list without fork
@@ -49,6 +50,10 @@ interface ApiService {
         @Query("per_page") perPage: Int,
         @Query("since") since: Long
     ): ResponseListEntity
+
+    @GET("users/{username}")
+    suspend fun getUserDetail(@Path("username") username: String): UserDetailEntity
+
 }
 
 suspend fun <T> callApiService(apiCall: suspend () -> T): NetworkResult<T> {

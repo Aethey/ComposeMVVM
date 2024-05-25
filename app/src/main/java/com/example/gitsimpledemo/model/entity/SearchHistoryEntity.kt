@@ -26,3 +26,15 @@ enum class SearchType {
     USERNAME,
     PROJECT_NAME
 }
+
+enum class SearchActionType {
+    KEYBOARD,
+    CLICK
+}
+
+enum class SearchViewType {
+    CLEAR_CLOSE,
+    COMMON_CLOSE,
+    SEARCH_CLOSE,
+    OPEN
+}

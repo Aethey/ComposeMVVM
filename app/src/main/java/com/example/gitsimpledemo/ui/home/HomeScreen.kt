@@ -21,7 +21,7 @@ import com.example.gitsimpledemo.ui.userlist.UserListScreen
 fun HomeScreen() {
     val navController = rememberNavController()
     NavHost(navController, startDestination = Screens.List.route) {
-        composable(Screens.List.route) { UserListScreen() }
+        composable(Screens.List.route) { UserListScreen(navController = navController) }
         composable(Screens.Detail.route) { UserDetailScreen() }
     }
 

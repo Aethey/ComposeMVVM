@@ -74,7 +74,7 @@ data class UserListState(
     /**
      * Current search query
      */
-    val currentSearching: String = "",
+    val searchQuery: String ="",
 
     /**
      * Error message

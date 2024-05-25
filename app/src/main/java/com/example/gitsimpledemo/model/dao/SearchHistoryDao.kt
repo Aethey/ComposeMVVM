@@ -25,6 +25,12 @@ interface SearchHistoryDao {
     @Query("SELECT * FROM search_history WHERE search_query = :query LIMIT 1")
     suspend fun getHistoryByQuery(query: String): SearchHistoryEntity?
 
+    @Query("SELECT * FROM search_history WHERE search_query LIKE '%' || :query || '%' ORDER BY timestamp DESC")
+    suspend fun getAllHistoryContainingQuery(query: String): List<SearchHistoryEntity>
+
+    @Query("DELETE FROM search_history")
+    suspend fun clearSearchHistory()
+
     @Update
     suspend fun update(searchHistoryEntity: SearchHistoryEntity)
 

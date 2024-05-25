@@ -29,9 +29,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    val startNavigation = Screens.Home.route
-    NavHost(navController = navController, startDestination = startNavigation) {
-        composable(Screens.Home.route) { HomeScreen() }
+    NavHost(navController = navController, startDestination = Screens.List.route) {
+//        composable(Screens.Home.route) { HomeScreen() }
+        composable(Screens.List.route) { UserListScreen(navController = navController) }
+        composable(Screens.Detail.route) { UserDetailScreen() }
     }
 }
 

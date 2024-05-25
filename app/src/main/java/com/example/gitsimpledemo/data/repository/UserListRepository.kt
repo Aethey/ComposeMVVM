@@ -21,9 +21,9 @@ class UserListRepository(private val apiService: ApiService) {
         }
     }
 
-    suspend fun searchUsers(query: String,since:Long): NetworkResult<List<UserEntity>> {
+    suspend fun searchUsers(query: String,page:Int): NetworkResult<List<UserEntity>> {
         return callApiService {
-            apiService.searchUsers(perPage = pageSize,query = query,since = since).items
+            apiService.searchUsers(perPage = pageSize,query = query, page = page).items
         }
     }
 }

@@ -15,6 +15,7 @@ import com.example.gitsimpledemo.data.repository.UserListRepository
 import com.example.gitsimpledemo.model.dao.SearchHistoryDao
 import com.example.gitsimpledemo.model.entity.SearchHistoryEntity
 import com.example.gitsimpledemo.model.entity.SearchType
+import com.example.gitsimpledemo.model.entity.SearchViewType
 import com.example.gitsimpledemo.util.Trie
 import kotlinx.coroutines.launch
 
@@ -31,14 +32,14 @@ class UserListViewModel(
     var uiState by mutableStateOf(UserListState())
 
     init {
-        loadInitialData()
+        onInitialData()
     }
 
-    private fun loadInitialData() {
-        fetchData(uiState.since, clearList = true)
+    private fun onInitialData() {
+        onGetDataList(0)
     }
 
-    fun buildTrie() {
+    fun onBuildTrie() {
         viewModelScope.launch {
             val history = searchHistoryDao.getAllHistorySortedByTime()
             val trie = Trie().apply {
@@ -48,109 +49,188 @@ class UserListViewModel(
         }
     }
 
-    fun addSearchQuery(query: String, type: SearchType) {
-       if(query.isNotBlank()){
-           viewModelScope.launch {
-               val newHistory = SearchHistoryEntity(searchQuery = query.trim(), type = type)
-               searchHistoryDao.upsert(newHistory)
-               uiState.trie.insert(query.trim())
-               updateSearchHistory()
-           }
-       }
-    }
-
-    fun searchQueryUpdate(query: String) {
-        if (query.isEmpty()) {
-            updateSearchHistory()
-        } else {
-            val results = uiState.trie.search(query.trim())
-            uiState = uiState.copy(searchHistory = results.map {
-                SearchHistoryEntity(
-                    searchQuery = it,
-                    timestamp = 0L,
-                    type = SearchType.USERNAME
-                )
-            })
-        }
-    }
-
-    fun onUpdateSearchState(searchState: Boolean) {
+    fun onKeyboardSearch(type: SearchType) {
+        println("type is onKeyboardSearch  ${uiState.searchQuery}")
         viewModelScope.launch {
-            uiState = uiState.copy(isSearching = searchState)
+            if (uiState.searchQuery.isNotBlank()) {
+                val newHistory =
+                    SearchHistoryEntity(searchQuery = uiState.searchQuery, type = type)
+                searchHistoryDao.upsert(newHistory)
+                uiState.trie.insert(uiState.searchQuery)
+            }
+            onGetSearchUserList(uiState.searchQuery)
         }
     }
 
-    fun updateUserListScrollState(scrollState: Boolean) {
+    fun onClickSearch(type: SearchType, searchQuery: String) {
+        println("type is onClickSearch  $searchQuery")
+        viewModelScope.launch {
+            val newHistory = SearchHistoryEntity(searchQuery = searchQuery, type = type)
+//            searchQuery count  += 1 in history
+            onGetSearchUserList(searchQuery)
+        }
+
+    }
+
+    fun onRealtimeUpdateSearchQuery(query: String) {
+        viewModelScope.launch {
+            uiState = uiState.copy(
+                // Realtime update searchQuery
+                searchQuery = query,
+            )
+            uiState = uiState.copy(
+                // Realtime update searchHistory
+                searchHistory = if (query.isBlank()) {
+                    searchHistoryDao.getAllHistorySortedByTime()
+                } else searchHistoryDao.getAllHistoryContainingQuery(query)
+            )
+        }
+//        why twice launch:
+//       Effective state management for TextField in Compose
+//       https://medium.com/androiddevelopers/effective-state-management-for-textfield-in-compose-d6e5b070fbe5
+    }
+
+    fun onClearSearchHistory(){
+        viewModelScope.launch {
+            searchHistoryDao.clearSearchHistory()
+            uiState = uiState.copy(searchHistory = emptyList())
+        }
+    }
+
+    fun onUpdateSearchViewState(searchState: SearchViewType) {
+        viewModelScope.launch {
+            uiState = when (searchState) {
+                SearchViewType.COMMON_CLOSE -> uiState.copy(isSearching = false)
+                SearchViewType.CLEAR_CLOSE -> uiState.copy(isSearching = false, searchQuery = "")
+                SearchViewType.SEARCH_CLOSE -> uiState.copy(isSearching = false)
+                SearchViewType.OPEN -> uiState.copy(isSearching = true)
+            }
+        }
+    }
+
+    fun onUpdateUserListScrollState(scrollState: Boolean) {
         uiState = uiState.copy(isScrolling = scrollState)
     }
 
-    fun onJudgmentShowTop(isShowTopItem: Boolean) {
+    fun onCheckListIsShowTop(isShowTopItem: Boolean) {
         uiState = uiState.copy(isShowTopItem = isShowTopItem)
     }
 
-    fun loadMoreData() {
-        val query = uiState.currentSearching.ifEmpty { null }
-        fetchData(uiState.since, query = query, append = true)
-    }
-
-    fun getSearchUserList(query: String) {
-        fetchData(0, query = query, clearList = true)
-    }
-
-    fun refreshData() {
-        uiState = uiState.copy(isRefreshing = true)
-        fetchData(
-            0,
-            query = uiState.currentSearching.ifEmpty { null }
-        )
-    }
-
-    private fun updateSearchHistory() {
-        viewModelScope.launch {
-            val history = searchHistoryDao.getAllHistorySortedByTime()
-            println("history is $history")
-            uiState = uiState.copy(searchHistory = history)
+    fun onLoadMoreData() {
+        if (uiState.searchQuery.isNotBlank()) {
+            onGetSearchDataList(
+                append = true,
+                page = uiState.currentPage,
+                query = uiState.searchQuery
+            )
+        } else {
+            onGetDataList(
+                since = uiState.since,
+                append = true
+            )
         }
     }
 
-    private fun fetchData(
+    private fun onGetSearchUserList(searchQuery: String) {
+        if (searchQuery.isNotBlank()) {
+            onGetSearchDataList(
+                append = false,
+                page = 1,
+                query = searchQuery
+            )
+        } else {
+            onGetDataList(
+                since = 0,
+                append = false
+            )
+        }
+    }
+
+    fun onRefreshData() {
+        uiState = uiState.copy(isRefreshing = true)
+        if (uiState.searchQuery.isNotBlank()) {
+            onGetSearchDataList(
+                append = false,
+                page = 1,
+                query = uiState.searchQuery
+            )
+        } else {
+            onGetDataList(
+                since = 0,
+                append = false
+            )
+        }
+    }
+
+
+    private fun onGetDataList(
         since: Long,
-        query: String? = null,
         append: Boolean = false,
-        clearList: Boolean = false
     ) {
         viewModelScope.launch {
-            val result = if (query.isNullOrBlank()) {
-                repository.getData(since)
-            } else {
-                println("query is $query")
-                repository.searchUsers(query.trim(), since)
+            repository.getData(since).apply {
+                when (this) {
+                    is NetworkResult.Success -> {
+                        uiState = uiState.copy(
+                            userList = if (append) uiState.userList + this.data else this.data,
+                            hasMore = this.data.size == Constants.PAGE_SIZE,
+                            since = if (this.data.isEmpty()) 0 else this.data.last().id,
+                            isRefreshing = false,
+                            isError = false,
+                        )
+                    }
+
+                    is NetworkResult.Error -> {
+                        uiState = uiState.copy(
+                            errorMessage = this.exception.message ?: "net error",
+                            isRefreshing = false,
+                            isLoading = false,
+                            hasMore = false,
+                            isError = true
+                        )
+
+                    }
+
+                    NetworkResult.Loading -> {
+
+                    }
+                }
             }
-            when (result) {
-                is NetworkResult.Success -> {
-                    uiState = uiState.copy(
-                        userList = if (append) uiState.userList + result.data else result.data,
-                        currentPage = if (clearList) 1 else uiState.currentPage + 1,
-                        hasMore = result.data.size == Constants.PAGE_SIZE,
-                        since =if (result.data.isEmpty()) 1 else result.data.last().id,
-                        isRefreshing = false,
-                        isError = false
-                    )
-                }
+        }
+    }
 
-                is NetworkResult.Error -> {
-                    println("NetworkResult.Error error")
-                    uiState = uiState.copy(
-                        errorMessage = result.exception.message ?: "net error",
-                        isRefreshing = false ,
-                        isLoading = false,
-                        hasMore= false,
-                        isError = true
-                    )
-                }
+    private fun onGetSearchDataList(
+        append: Boolean = false,
+        page: Int,
+        query: String,
+    ) {
+        viewModelScope.launch {
+            repository.searchUsers(query, page).apply {
+                when (this) {
+                    is NetworkResult.Success -> {
+                        uiState = uiState.copy(
+                            userList = if (append) uiState.userList + this.data else this.data,
+                            currentPage = page + 1,
+                            hasMore = this.data.size == Constants.PAGE_SIZE,
+                            isRefreshing = false,
+                            isError = false,
+                            searchQuery = query
+                        )
+                    }
 
-                NetworkResult.Loading -> {
-                    // Handle loading state if needed
+                    is NetworkResult.Error -> {
+                        uiState = uiState.copy(
+                            errorMessage = this.exception.message ?: "net error",
+                            isRefreshing = false,
+                            isLoading = false,
+                            hasMore = false,
+                            isError = true,
+                            searchQuery = query
+                        )
+                    }
+
+                    NetworkResult.Loading -> {
+                    }
                 }
             }
         }
