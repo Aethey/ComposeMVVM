@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.gitsimpledemo.R
@@ -100,7 +101,7 @@ fun SearchView(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                CustomButton("CLEAR") { onClearHistory() }
+                CustomButton(stringResource(id = R.string.clear_history_button)) { onClearHistory() }
 //                CustomButton("SEARCH USER"){}
             }
         }

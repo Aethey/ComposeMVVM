@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">GitSimpleDemo</string>
+    <string name="no_more">You\'ve reached the end.</string>
+    <string name="empty_data">Sorry, data empty now.</string>
+    <string name="init_data">Preparing data.</string>
+    <string name="exit_dialog_title">Exit this App.</string>
+    <string name="exit_dialog_content">Are you sure you want to exit?</string>
+    <string name="exit_dialog_sure">Confirm</string>
+    <string name="exit_dialog_cancel">Cancel</string>
+    <string name="clear_history_button">clear history</string>
 </resources>

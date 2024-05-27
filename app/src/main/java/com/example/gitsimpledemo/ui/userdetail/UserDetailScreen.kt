@@ -55,6 +55,7 @@ import com.example.gitsimpledemo.Application
 import com.example.gitsimpledemo.R
 import com.example.gitsimpledemo.ui.components.CustomLazyColumn
 import com.example.gitsimpledemo.ui.components.EmptyPage
+import com.example.gitsimpledemo.ui.components.ErrorPage
 import com.example.gitsimpledemo.ui.components.InitPage
 import com.example.gitsimpledemo.ui.userdetail.components.TimeLineItem
 import com.example.gitsimpledemo.util.CommonUtils
@@ -112,8 +113,12 @@ fun UserDetailScreen(
             }
         }
     ) { paddingValues ->
-        if (state.listRepositories.isEmpty()) {
-            InitPage ()
+        if (state.isError) {
+            ErrorPage {
+                viewModel.onRefreshData()
+            }
+        } else if (state.listRepositories.isEmpty()) {
+            InitPage()
         } else if (state.isEmpty) {
             EmptyPage {
                 viewModel.onRefreshData()

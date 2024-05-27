@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">GitSimpleDemo</string>
+    <string name="no_more">終わりに達しました。</string>
+    <string name="empty_data">申し訳ありませんが、データは空です。</string>
+    <string name="init_data">データを準備しています。</string>
+    <string name="exit_dialog_title">アプリを終了します。</string>
+    <string name="exit_dialog_content">本当に終了しますか？</string>
+    <string name="exit_dialog_sure">確認</string>
+    <string name="exit_dialog_cancel">キャンセル</string>
+    <string name="clear_history_button"> 履歴をクリアする</string>
+</resources>

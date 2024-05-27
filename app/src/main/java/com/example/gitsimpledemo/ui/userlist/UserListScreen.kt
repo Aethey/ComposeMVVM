@@ -54,6 +54,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -61,14 +62,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.gitsimpledemo.Application
+import com.example.gitsimpledemo.R
 import com.example.gitsimpledemo.model.entity.SearchType
 import com.example.gitsimpledemo.model.entity.SearchViewType
 import com.example.gitsimpledemo.route.Screens
+import com.example.gitsimpledemo.ui.components.AlertDialogExit
 import com.example.gitsimpledemo.ui.components.CustomLazyColumn
 import com.example.gitsimpledemo.ui.components.EmptyPage
 import com.example.gitsimpledemo.ui.components.ErrorPage
 import com.example.gitsimpledemo.ui.components.InitPage
-import com.example.gitsimpledemo.ui.userlist.components.AlertDialogExit
 import com.example.gitsimpledemo.ui.userlist.components.SearchView
 import com.example.gitsimpledemo.ui.userlist.components.UserListItem
 import kotlinx.coroutines.delay
@@ -218,8 +220,8 @@ fun UserListScreen(
                     openAlertDialog.value = false
                     shouldExit.value = true
                 },
-                dialogTitle = "Exit this App",
-                dialogText = "Are you sure you want to exit?",
+                dialogTitle = stringResource(id = R.string.exit_dialog_title),
+                dialogText = stringResource(id = R.string.exit_dialog_content),
                 icon = Icons.Default.Info
             )
         }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,10 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.gitsimpledemo.Constants
 import com.example.gitsimpledemo.R
 
 /**
@@ -51,9 +52,14 @@ fun EmptyPage(
                     .height(128.dp)
                     .width(128.dp)
             )
-            Text(Constants.EMPTY_DATA, fontSize = 16.sp, color = Color.Black,modifier = Modifier.padding(24.dp))
+            Text(
+                stringResource(id = R.string.empty_data),
+                fontSize = 16.sp,
+                color = Color.Black,
+                modifier = Modifier.padding(24.dp)
+            )
             Button(
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
                 onClick = {
                     onRefresh()
                 },
