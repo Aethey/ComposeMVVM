@@ -9,6 +9,19 @@ architecture pattern. It's designed to showcase how to use Compose in real-world
 
 - MVVM (Model-View-ViewModel)
 
+## Feature
+
+- list user.
+- search user.
+- list user repositories without fork.
+- save search history.
+
+## Incomplete
+
+- unit test.
+- Refine the scrolling behavior of the LargeTopAppBar and LazyColumn in the user details page.
+- Configure the GitHub Actions job to trigger when merging into the master branch.
+
 ## Third-Party Libraries
 
 This project uses a number of third-party libraries:
