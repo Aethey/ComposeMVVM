@@ -1,7 +1,8 @@
 package com.example.gitsimpledemo.data.network.api
 
 import android.content.Context
-import com.example.gitsimpledemo.Constants
+import com.example.gitsimpledemo.AppConfig
+import com.example.gitsimpledemo.GitConfig
 import com.example.gitsimpledemo.data.mock.MockInterceptor
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitManager {
 
-    private const val BASE_URL = Constants.BASE_URL
+    private const val BASE_URL = AppConfig.BASE_URL
 
     private lateinit var retrofit: Retrofit
 
@@ -35,7 +36,7 @@ object RetrofitManager {
         // Interceptor for adding headers to every HTTP request
         val headerInterceptor = Interceptor { chain ->
             val request = chain.request().newBuilder()
-                .addHeader(Constants.HEADER_AUTHORIZATION, Constants.HEADER_TOKEN)
+                .addHeader(AppConfig.HEADER_AUTHORIZATION, GitConfig.HEADER_TOKEN)
                 .build()
             chain.proceed(request)
         }
@@ -44,12 +45,12 @@ object RetrofitManager {
         val clientBuilder = OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor) // Add logging interceptor
             .addInterceptor(headerInterceptor) // Add header interceptor
-            .connectTimeout(Constants.CONNECT_TIMEOUT, TimeUnit.SECONDS)
-            .readTimeout(Constants.READ_TIMEOUT, TimeUnit.SECONDS)
-            .writeTimeout(Constants.WRITE_TIMEOUT, TimeUnit.SECONDS)
+            .connectTimeout(AppConfig.CONNECT_TIMEOUT, TimeUnit.SECONDS)
+            .readTimeout(AppConfig.READ_TIMEOUT, TimeUnit.SECONDS)
+            .writeTimeout(AppConfig.WRITE_TIMEOUT, TimeUnit.SECONDS)
 
         // Conditionally add mock interceptor based on configuration
-        if (Constants.USE_MOCK) {
+        if (AppConfig.USE_MOCK) {
             clientBuilder.addInterceptor(MockInterceptor(context))
         }
 

@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.gitsimpledemo.Constants
+import com.example.gitsimpledemo.AppConfig
 import com.example.gitsimpledemo.data.network.api.ApiService
 import com.example.gitsimpledemo.data.network.api.NetworkResult
 import com.example.gitsimpledemo.data.network.api.RetrofitManager
@@ -214,7 +214,7 @@ class UserListViewModel(
                     is NetworkResult.Success -> {
                         uiState = uiState.copy(
                             userList = if (append) uiState.userList + this.data else this.data,
-                            hasMore = this.data.size == Constants.PAGE_SIZE,
+                            hasMore = this.data.size == AppConfig.PAGE_SIZE,
                             since = if (this.data.isEmpty()) 0 else this.data.last().id,
                             isRefreshing = false,
                             isError = false,
@@ -256,7 +256,7 @@ class UserListViewModel(
                         uiState = uiState.copy(
                             userList = if (append) uiState.userList + this.data else this.data,
                             currentPage = page + 1,
-                            hasMore = this.data.size == Constants.PAGE_SIZE,
+                            hasMore = this.data.size == AppConfig.PAGE_SIZE,
                             isRefreshing = false,
                             isError = false,
                             searchQuery = query

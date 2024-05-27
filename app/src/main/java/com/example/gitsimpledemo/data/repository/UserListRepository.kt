@@ -1,6 +1,6 @@
 package com.example.gitsimpledemo.data.repository
 
-import com.example.gitsimpledemo.Constants
+import com.example.gitsimpledemo.AppConfig
 import com.example.gitsimpledemo.data.network.api.ApiService
 import com.example.gitsimpledemo.data.network.api.NetworkResult
 import com.example.gitsimpledemo.data.network.api.callApiService
@@ -13,7 +13,7 @@ import com.example.gitsimpledemo.model.entity.UserEntityList
  * Description: UserListRepository
  */
 open class UserListRepository(private val apiService: ApiService) {
-    private val pageSize = Constants.PAGE_SIZE
+    private val pageSize = AppConfig.PAGE_SIZE
 
     suspend fun getData(since: Long): NetworkResult<UserEntityList> {
         return callApiService {

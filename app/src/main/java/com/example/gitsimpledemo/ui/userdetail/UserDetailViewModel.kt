@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.gitsimpledemo.Constants
+import com.example.gitsimpledemo.AppConfig
 import com.example.gitsimpledemo.data.network.api.ApiService
 import com.example.gitsimpledemo.data.network.api.NetworkResult
 import com.example.gitsimpledemo.data.network.api.RetrofitManager
@@ -46,7 +46,7 @@ class UserDetailViewModel(
         viewModelScope.launch {
 
             when (usertype) {
-                Constants.TYPE_USER -> {
+                AppConfig.TYPE_USER -> {
                     repository.getUserRepositoriesGraphQL(userName, usertype, uiState.endCursor)
                         .apply {
                             when (this) {
@@ -83,7 +83,7 @@ class UserDetailViewModel(
                         }
                 }
 
-                Constants.TYPE_ORGANIZATION -> {
+                AppConfig.TYPE_ORGANIZATION -> {
                     repository.getOrganizationRepositoriesGraphQL(
                         userName,
                         usertype,
