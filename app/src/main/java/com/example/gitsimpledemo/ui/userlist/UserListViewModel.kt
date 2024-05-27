@@ -119,6 +119,7 @@ class UserListViewModel(
     }
 
     fun onLoadMoreData() {
+        uiState = uiState.copy(isLoadingMore = true)
         if (uiState.searchQuery.isNotBlank()) {
             onGetSearchDataList(
                 append = true,
@@ -179,6 +180,7 @@ class UserListViewModel(
                             since = if (this.data.isEmpty()) 0 else this.data.last().id,
                             isRefreshing = false,
                             isError = false,
+                            isLoadingMore = false
                         )
                     }
 
@@ -188,7 +190,8 @@ class UserListViewModel(
                             isRefreshing = false,
                             isLoading = false,
                             hasMore = false,
-                            isError = true
+                            isError = true,
+                            isLoadingMore = false
                         )
 
                     }

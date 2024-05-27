@@ -19,6 +19,9 @@ data class UserListState(
     // Indicates whether data for the list is currently being loaded.
     val isLoading: Boolean = false,
 
+    // Indicates whether more data is currently being loaded.
+    val isLoadingMore: Boolean = false,
+
     // Indicates whether there are more items to load, used for implementing pagination.
     val hasMore: Boolean = true,
 

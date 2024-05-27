@@ -1,4 +1,4 @@
-package com.example.gitsimpledemo.ui.userlist.components
+package com.example.gitsimpledemo.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

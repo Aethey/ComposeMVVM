@@ -70,9 +70,9 @@ import com.example.gitsimpledemo.Application
 import com.example.gitsimpledemo.model.entity.SearchType
 import com.example.gitsimpledemo.model.entity.SearchViewType
 import com.example.gitsimpledemo.route.Screens
+import com.example.gitsimpledemo.ui.components.ErrorPage
 import com.example.gitsimpledemo.ui.components.ShowCustomToast
 import com.example.gitsimpledemo.ui.userlist.components.AlertDialogExit
-import com.example.gitsimpledemo.ui.userlist.components.ErrorPage
 import com.example.gitsimpledemo.ui.userlist.components.SearchView
 import com.example.gitsimpledemo.ui.userlist.components.UserListItem
 import kotlinx.coroutines.delay
@@ -269,7 +269,7 @@ fun UserListScreen(
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
                 ) {
-                    //                user list view
+                    //  user list view
                     Box {
                         LazyColumn(
                             state = listState,
@@ -314,7 +314,7 @@ fun UserListScreen(
                             }
                         }
                         ShowCustomToast(
-                            showToastState = !state.hasMore,
+                            showToastState = (!state.hasMore && state.isLoadingMore),
                             message = "NO MORE DATA",
                         )
                         PullRefreshIndicator(
