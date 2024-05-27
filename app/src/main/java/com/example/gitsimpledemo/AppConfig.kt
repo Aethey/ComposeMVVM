@@ -7,10 +7,6 @@ package com.example.gitsimpledemo
  */
 object AppConfig {
     const val BASE_URL = "https://api.github.com/"
-    const val HEADER_AUTHORIZATION = "Authorization"
-    private const val HEADER_AUTHORIZATION_BEARER = "Bearer "
-    private const val HEADER_AUTHORIZATION_TOKEN = ""
-    const val HEADER_TOKEN = HEADER_AUTHORIZATION_BEARER + HEADER_AUTHORIZATION_TOKEN
     const val CONNECT_TIMEOUT: Long = 30  //SECONDS
     const val READ_TIMEOUT: Long = 30  //SECONDS
     const val WRITE_TIMEOUT: Long = 30  //SECONDS

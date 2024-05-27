@@ -36,7 +36,7 @@ object RetrofitManager {
         // Interceptor for adding headers to every HTTP request
         val headerInterceptor = Interceptor { chain ->
             val request = chain.request().newBuilder()
-                .addHeader(AppConfig.HEADER_AUTHORIZATION, GitConfig.HEADER_TOKEN)
+                .addHeader(GitConfig.HEADER_AUTHORIZATION, GitConfig.HEADER_TOKEN)
                 .build()
             chain.proceed(request)
         }
