@@ -131,6 +131,7 @@ fun UserListScreen(
     }
 
     fun onSearch(searchQuery: String?) {
+        print("click -> $searchQuery")
         when (searchQuery) {
             null -> viewModel.onKeyboardSearch(SearchType.USERNAME)
             else -> viewModel.onClickSearch(SearchType.USERNAME, searchQuery)
@@ -151,9 +152,9 @@ fun UserListScreen(
     BackHandler(true) {
         if (state.isSearching) {
             viewModel.onUpdateSearchViewState(SearchViewType.COMMON_CLOSE)
-        } else if (state.searchQuery.isNotBlank()) {
+        } else if (state.searchQueryInput.isNotBlank() || state.searchQuery.isNotBlank()) {
             viewModel.onRealtimeUpdateSearchQuery("")
-            viewModel.onRefreshData()
+            viewModel.onInitialData()
         } else {
             openAlertDialog.value = true
         }
@@ -176,7 +177,9 @@ fun UserListScreen(
                         isLongClick = false
                         delay(500)
                         isLongClick = true
-                        //not top && Long click -> open search
+                        //not top && Long click -> scroll to top open search
+                        // if not top, out of index
+                        coroutineScope.launch { listState.animateScrollToItem(0) }
                         onShowSearchWidget()
                     }
                 }
@@ -241,7 +244,7 @@ fun UserListScreen(
                 CustomAppBar(
                     onShowSearchWidget = { onShowSearchWidget() },
                     onCloseSearchWidget = { onCloseSearchWidget() },
-                    searchQuery = state.searchQuery,
+                    searchQuery = state.searchQueryInput,
                     inputTextWidth = inputTextWidth,
                     state = state,
                     onSearch = { onSearch(null) },

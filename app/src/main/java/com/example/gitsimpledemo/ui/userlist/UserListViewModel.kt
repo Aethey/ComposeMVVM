@@ -35,7 +35,7 @@ class UserListViewModel(
         onInitialData()
     }
 
-    private fun onInitialData() {
+    fun onInitialData() {
         onGetDataList(0)
     }
 
@@ -52,20 +52,21 @@ class UserListViewModel(
     fun onKeyboardSearch(type: SearchType) {
         println("type is onKeyboardSearch  ${uiState.searchQuery}")
         viewModelScope.launch {
-            if (uiState.searchQuery.isNotBlank()) {
+            if (uiState.searchQueryInput.isNotBlank()) {
+                uiState = uiState.copy(searchQuery = uiState.searchQueryInput)
                 val newHistory =
-                    SearchHistoryEntity(searchQuery = uiState.searchQuery, type = type)
+                    SearchHistoryEntity(searchQuery = uiState.searchQueryInput, type = type)
                 searchHistoryDao.upsert(newHistory)
-                uiState.trie.insert(uiState.searchQuery)
+                //uiState.trie.insert(uiState.searchQueryInput)
             }
             onGetSearchUserList(uiState.searchQuery)
         }
     }
 
     fun onClickSearch(type: SearchType, searchQuery: String) {
-        println("type is onClickSearch  $searchQuery")
+        println("type is onClickSearch +++++ searchQuery is  $searchQuery")
         viewModelScope.launch {
-            val newHistory = SearchHistoryEntity(searchQuery = searchQuery, type = type)
+            //val newHistory = SearchHistoryEntity(searchQuery = searchQuery, type = type)
             //  searchQuery count  += 1 in history
             onGetSearchUserList(searchQuery)
         }
@@ -76,7 +77,7 @@ class UserListViewModel(
         viewModelScope.launch {
             uiState = uiState.copy(
                 //  Realtime update searchQuery
-                searchQuery = query,
+                searchQueryInput = query,
             )
             uiState = uiState.copy(
                 //  Realtime update searchHistory
@@ -95,7 +96,7 @@ class UserListViewModel(
     fun onClearSearchHistory() {
         viewModelScope.launch {
             searchHistoryDao.clearSearchHistory()
-            uiState = uiState.copy(searchHistory = emptyList())
+            uiState = uiState.copy(searchHistory = emptyList(), searchQueryInput = "")
         }
     }
 
@@ -103,7 +104,12 @@ class UserListViewModel(
         viewModelScope.launch {
             uiState = when (searchState) {
                 SearchViewType.COMMON_CLOSE -> uiState.copy(isSearching = false)
-                SearchViewType.CLEAR_CLOSE -> uiState.copy(isSearching = false, searchQuery = "")
+                SearchViewType.CLEAR_CLOSE -> uiState.copy(
+                    isSearching = false,
+                    searchQuery = "",
+                    searchQueryInput = ""
+                )
+
                 SearchViewType.SEARCH_CLOSE -> uiState.copy(isSearching = false)
                 SearchViewType.OPEN -> uiState.copy(isSearching = true)
             }

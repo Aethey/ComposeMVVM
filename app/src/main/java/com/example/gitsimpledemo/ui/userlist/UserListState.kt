@@ -55,6 +55,8 @@ data class UserListState(
     // Current search query.
     val searchQuery: String = "",
 
+    val searchQueryInput: String = "",
+
     // Error message to be displayed in case of an error.
     val errorMessage: String = ""
 )
