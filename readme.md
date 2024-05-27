@@ -2,12 +2,11 @@
 
 ## Description
 
-This application is a simple GitHub client built using Jetpack Compose and follows the MVVM
-architecture pattern. It's designed to showcase how to use Compose in real-world applications.
+A simple GitHub client built using Jetpack Compose and follows the MVVM
 
 ## Architecture
 
-- MVVM (Model-View-ViewModel)
+- MVVM
 
 ## Feature
 
@@ -41,7 +40,6 @@ This project uses a number of third-party libraries:
 
 ### Other Libraries
 
-- Kotlin: `1.9.0`
 - Coil Compose for image loading: `2.6.0`
 - Retrofit for networking: `2.9.0`
 - Jackson for JSON parsing:
