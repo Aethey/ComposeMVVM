@@ -23,6 +23,8 @@ data class UserDetailEntity(
     val following: Long,
     @JsonProperty("avatar_url")
     val avatarUrl: String,
+    @JsonProperty("location")
+    val location: String,
 //    no use in current feature
 //    @JsonProperty("node_id")
 //    val nodeId: String,
@@ -58,8 +60,6 @@ data class UserDetailEntity(
 //    val company: Any?,
 //    @JsonProperty("blog")
 //    val blog: String,
-//    @JsonProperty("location")
-//    val location: String,
 //    @JsonProperty("email")
 //    val email: String,
 //    @JsonProperty("hireable")

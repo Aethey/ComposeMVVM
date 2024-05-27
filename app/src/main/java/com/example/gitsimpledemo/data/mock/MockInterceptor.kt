@@ -1,4 +1,5 @@
 package com.example.gitsimpledemo.data.mock
+
 import android.content.Context
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -20,15 +21,13 @@ class MockInterceptor(private val context: Context) : Interceptor {
 
         // Determine which mock file to use based on the URL
         val mockFileName = when {
-            url.contains("/users") -> "userList.json"
-            url.contains("/users/") -> "userDetail.json"
+            url.matches(Regex(".*/users\\?.*")) -> "userList.json"
+            url.matches(Regex(".*/users/[^/]+/?\$")) -> "userDetail.json"
             else -> null
         }
 
         return if (mockFileName != null) {
             val json = context.assets.open(mockFileName).bufferedReader().use { it.readText() }
-            print(json)
-
             Response.Builder()
                 .code(200)
                 .message(json)

@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -65,7 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.gitsimpledemo.GitSimpleDemoApp
+import com.example.gitsimpledemo.Application
 import com.example.gitsimpledemo.model.entity.SearchType
 import com.example.gitsimpledemo.model.entity.SearchViewType
 import com.example.gitsimpledemo.route.Screens
@@ -88,30 +89,37 @@ import kotlinx.coroutines.launch
 @Composable
 fun UserListScreen(
     viewModel: UserListViewModel = viewModel(
-        factory = UserListViewModelFactory(GitSimpleDemoApp.instance.database.searchHistoryDao())
+        factory = UserListViewModelFactory(Application.instance.database.searchHistoryDao())
     ),
     navController: NavHostController
 ) {
-//  initState
+    //  initState
+    //  view all state
     val state = viewModel.uiState
+    //  user list state
     val listState = rememberLazyListState()
+    //  control pull refresh
     val pullRefreshState = rememberPullRefreshState(
         refreshing = state.isRefreshing,
         onRefresh = { viewModel.onRefreshData() }
     )
+    //  control exit dialog
     val openAlertDialog = remember { mutableStateOf(false) }
-    var shouldExit = remember { mutableStateOf(false) }
-//  init widget param
+    //  control app finish
+    val shouldExit = remember { mutableStateOf(false) }
+    //  init widget param
+    //  screen size
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp
-//  init data
+    //  control listview scroll to top
     val coroutineScope = rememberCoroutineScope()
+    //  control FAV click event
     val interactionSource = remember { MutableInteractionSource() }
+    //  control input text view width
     val inputTextWidth = remember { mutableIntStateOf(screenWidth) }
 
-    //  mock date
-//  init function
+    //  init function
     fun onShowSearchWidget() {
         if (!state.isSearching) {
             inputTextWidth.intValue = screenWidth - 90
@@ -125,9 +133,9 @@ fun UserListScreen(
     }
 
     fun onSearch(searchQuery: String?) {
-        when(searchQuery){
-            null ->viewModel.onKeyboardSearch(SearchType.USERNAME)
-            else->viewModel.onClickSearch(SearchType.USERNAME,searchQuery)
+        when (searchQuery) {
+            null -> viewModel.onKeyboardSearch(SearchType.USERNAME)
+            else -> viewModel.onClickSearch(SearchType.USERNAME, searchQuery)
         }
         onCloseSearchWidget()
     }
@@ -140,13 +148,15 @@ fun UserListScreen(
         viewModel.onRealtimeUpdateSearchQuery(searchQueryText.trim())
     }
 
-//    custom back action when isSearching
-//    when isSearching back action -> searchingWidget close & clear searchQuery
+    //  custom back action when isSearching
+    //  when isSearching back action -> searchingWidget close & clear searchQuery
     BackHandler(true) {
-        if(state.isSearching){
+        if (state.isSearching) {
             viewModel.onUpdateSearchViewState(SearchViewType.COMMON_CLOSE)
-        }
-        else{
+        } else if (state.searchQuery.isNotBlank()) {
+            viewModel.onRealtimeUpdateSearchQuery("")
+            viewModel.onRefreshData()
+        } else {
             openAlertDialog.value = true
         }
     }
@@ -155,12 +165,12 @@ fun UserListScreen(
         (context as ComponentActivity).finishAffinity()
     }
 
-//  init after view build
+    //  init after view build
     LaunchedEffect(interactionSource) {
         var isLongClick = false
-//        build trie after view build
+        //  build trie after view build
         viewModel.onBuildTrie()
-//        custom FAB long click event
+        //  custom FAB long click event
         interactionSource.interactions.collectLatest { interaction ->
             when (interaction) {
                 is PressInteraction.Press -> {
@@ -168,7 +178,7 @@ fun UserListScreen(
                         isLongClick = false
                         delay(500)
                         isLongClick = true
-//                       not top && Long click -> open search
+                        //not top && Long click -> open search
                         onShowSearchWidget()
                     }
                 }
@@ -176,10 +186,10 @@ fun UserListScreen(
                 is PressInteraction.Release -> {
                     if (isLongClick.not()) {
                         if (listState.firstVisibleItemIndex == 0) {
-//                            on the top && press -> open search
+                            //  on the top && press -> open search
                             onShowSearchWidget()
                         } else {
-//                            not top && press -> to top
+                            //  not top && press -> to top
                             coroutineScope.launch { listState.animateScrollToItem(0) }
                         }
                     }
@@ -191,7 +201,7 @@ fun UserListScreen(
             }
         }
     }
-//    get userList scroll state
+    //  get userList scroll state
     LaunchedEffect(listState) {
         snapshotFlow { listState.isScrollInProgress }
             .distinctUntilChanged()
@@ -202,7 +212,7 @@ fun UserListScreen(
                 }
             }
     }
-//    init view
+    //  init view
     when {
         // ...
         openAlertDialog.value -> {
@@ -212,21 +222,23 @@ fun UserListScreen(
                     openAlertDialog.value = false
                     shouldExit.value = true
                 },
-                dialogTitle = "Alert dialog example",
-                dialogText = "This is an example of an alert dialog with buttons.",
+                dialogTitle = "Exit this App",
+                dialogText = "Are you sure you want to exit?",
                 icon = Icons.Default.Info
             )
         }
     }
 
-//    main view
+    //  main view
     AnimatedVisibility(
         visible = !state.isError,
         enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
         exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
     ) {
         Scaffold(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             topBar = {
                 CustomAppBar(
                     onShowSearchWidget = { onShowSearchWidget() },
@@ -250,7 +262,7 @@ fun UserListScreen(
                     searchHistory = state.searchHistory,
                     onSearch = { onSearch(it) },
                     height = screenHeight,
-                    onClearHistory = {onClearHistory()}
+                    onClearHistory = { onClearHistory() }
                 )
                 AnimatedVisibility(
                     visible = !state.isSearching,
@@ -274,10 +286,10 @@ fun UserListScreen(
                         ) {
                             items(state.userList.size) { itemContent ->
                                 ListItem(
-                                        modifier = Modifier.clickable {
-                                            navController.navigate(Screens.Detail.route)
+                                    modifier = Modifier.clickable {
+                                        navController.navigate(Screens.Detail.createRoute(state.userList[itemContent].login))
 
-                                        }
+                                    }
                                 ) {
                                     UserListItemCompose(state.userList[itemContent])
                                 }

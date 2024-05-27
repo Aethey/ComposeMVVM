@@ -22,34 +22,40 @@ object RetrofitManager {
 
     private lateinit var retrofit: Retrofit
 
+    /**
+     * Initializes the Retrofit instance with the provided context.
+     * @param context The application context used to access assets and resources.
+     */
     fun initialize(context: Context) {
+        // Interceptor for logging HTTP request and response data
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
+        // Interceptor for adding headers to every HTTP request
         val headerInterceptor = Interceptor { chain ->
             val request = chain.request().newBuilder()
                 .addHeader(Constants.HEADER_AUTHORIZATION, Constants.HEADER_TOKEN)
                 .build()
             chain.proceed(request)
         }
-
-        val mockInterceptor = MockInterceptor(context) // 创建 MockInterceptor 实例
-
+        
+        // Build OkHttpClient with interceptors and timeouts
         val clientBuilder = OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .addInterceptor(headerInterceptor)
-            .addInterceptor(mockInterceptor) // 添加 MockInterceptor
+            .addInterceptor(loggingInterceptor) // Add logging interceptor
+            .addInterceptor(headerInterceptor) // Add header interceptor
             .connectTimeout(Constants.CONNECT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(Constants.READ_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.WRITE_TIMEOUT, TimeUnit.SECONDS)
+
+        // Conditionally add mock interceptor based on configuration
         if (Constants.USE_MOCK) {
-            clientBuilder.addInterceptor(MockInterceptor(context)) // 添加 MockInterceptor
+            clientBuilder.addInterceptor(MockInterceptor(context))
         }
 
         val client = clientBuilder.build()
 
-
+        // Build Retrofit instance with the configured OkHttpClient
         retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
@@ -57,9 +63,13 @@ object RetrofitManager {
             .build()
     }
 
+    /**
+     * Creates a service instance for the specified service class.
+     * @param serviceClass The class of the service to create.
+     * @return The created service instance.
+     */
     fun <T> createService(serviceClass: Class<T>): T {
         return retrofit.create(serviceClass)
     }
 }
-
 

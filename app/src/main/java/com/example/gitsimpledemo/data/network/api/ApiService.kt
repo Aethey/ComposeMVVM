@@ -1,14 +1,15 @@
 package com.example.gitsimpledemo.data.network.api
 
-import com.example.gitsimpledemo.data.repository.UserDetailResponse
+import com.example.gitsimpledemo.model.entity.GraphQLRequestBody
+import com.example.gitsimpledemo.model.entity.RepoGraphQLResponseEntity
 import com.example.gitsimpledemo.model.entity.ResponseListEntity
 import com.example.gitsimpledemo.model.entity.UserDetailEntity
-import com.example.gitsimpledemo.model.entity.UserEntity
 import com.example.gitsimpledemo.model.entity.UserEntityList
 import com.example.gitsimpledemo.model.entity.UserEntitySearchList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -35,7 +36,7 @@ interface ApiService {
         @Path("username") username: String
     ): UserDetailEntity
 
-//    search users
+    //    search users
     @GET("search/users")
     suspend fun searchUsers(
         @Query("q") query: String,
@@ -54,6 +55,9 @@ interface ApiService {
     @GET("users/{username}")
     suspend fun getUserDetail(@Path("username") username: String): UserDetailEntity
 
+    @POST("graphql")
+    suspend fun getRepoListGraphQL(@Body body: GraphQLRequestBody): RepoGraphQLResponseEntity
+
 }
 
 suspend fun <T> callApiService(apiCall: suspend () -> T): NetworkResult<T> {
@@ -68,6 +72,7 @@ suspend fun <T> callApiService(apiCall: suspend () -> T): NetworkResult<T> {
                     val errorResponse = throwable.response()?.errorBody()?.string()
                     NetworkResult.Error(IOException("HTTP $code $errorResponse"))
                 }
+
                 else -> NetworkResult.Error(IOException("Unknown Error"))
             }
         }

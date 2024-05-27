@@ -66,7 +66,7 @@ class UserListViewModel(
         println("type is onClickSearch  $searchQuery")
         viewModelScope.launch {
             val newHistory = SearchHistoryEntity(searchQuery = searchQuery, type = type)
-//            searchQuery count  += 1 in history
+            //  searchQuery count  += 1 in history
             onGetSearchUserList(searchQuery)
         }
 
@@ -75,22 +75,24 @@ class UserListViewModel(
     fun onRealtimeUpdateSearchQuery(query: String) {
         viewModelScope.launch {
             uiState = uiState.copy(
-                // Realtime update searchQuery
+                //  Realtime update searchQuery
                 searchQuery = query,
             )
             uiState = uiState.copy(
-                // Realtime update searchHistory
+                //  Realtime update searchHistory
                 searchHistory = if (query.isBlank()) {
                     searchHistoryDao.getAllHistorySortedByTime()
                 } else searchHistoryDao.getAllHistoryContainingQuery(query)
             )
         }
-//        why twice launch:
-//       Effective state management for TextField in Compose
-//       https://medium.com/androiddevelopers/effective-state-management-for-textfield-in-compose-d6e5b070fbe5
+        /**
+         *  why twice launch:
+         *  Effective state management for TextField in Compose
+         *  https://medium.com/androiddevelopers/effective-state-management-for-textfield-in-compose-d6e5b070fbe5
+         */
     }
 
-    fun onClearSearchHistory(){
+    fun onClearSearchHistory() {
         viewModelScope.launch {
             searchHistoryDao.clearSearchHistory()
             uiState = uiState.copy(searchHistory = emptyList())

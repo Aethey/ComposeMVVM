@@ -89,9 +89,13 @@ dependencies {
 //    https://transform.tools/json-to-kotlin
     implementation(libs.jackson.annotations)
     implementation(libs.converter.jackson)
+    //    webview
+    implementation("io.github.kevinnzou:compose-webview:0.33.6")
+
+
 //    flutter add to app
-    debugImplementation( libs.flutter.debug)
-    releaseImplementation (libs.flutter.release)
+    debugImplementation(libs.flutter.debug)
+    releaseImplementation(libs.flutter.release)
     add("profileImplementation", "com.example.flutter_module:flutter_profile:1.0")
 
 }
