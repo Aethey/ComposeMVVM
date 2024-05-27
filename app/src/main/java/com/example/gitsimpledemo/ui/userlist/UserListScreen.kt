@@ -14,29 +14,23 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ListItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -70,8 +64,8 @@ import com.example.gitsimpledemo.Application
 import com.example.gitsimpledemo.model.entity.SearchType
 import com.example.gitsimpledemo.model.entity.SearchViewType
 import com.example.gitsimpledemo.route.Screens
+import com.example.gitsimpledemo.ui.components.CustomLazyColumn
 import com.example.gitsimpledemo.ui.components.ErrorPage
-import com.example.gitsimpledemo.ui.components.ShowCustomToast
 import com.example.gitsimpledemo.ui.userlist.components.AlertDialogExit
 import com.example.gitsimpledemo.ui.userlist.components.SearchView
 import com.example.gitsimpledemo.ui.userlist.components.UserListItem
@@ -269,61 +263,33 @@ fun UserListScreen(
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
                 ) {
-                    //  user list view
-                    Box {
-                        LazyColumn(
-                            state = listState,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(
-                                    top = paddingValues.calculateTopPadding(),
-                                    start = 4.dp,
-                                    end = 4.dp,
-                                    bottom = 4.dp
-                                )
-                                .pullRefresh(pullRefreshState),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            items(state.userList.size) { itemContent ->
-                                ListItem(
-                                    modifier = Modifier.clickable {
-                                        navController.navigate(Screens.Detail.createRoute(state.userList[itemContent].login))
 
-                                    }
-                                ) {
-                                    UserListItem(state.userList[itemContent])
-                                }
+                    CustomLazyColumn(
+                        listState = listState,
+                        pullRefreshState = pullRefreshState,
+                        dataList = state.userList,
+                        listItemContent = @Composable { index: Int ->
+                            UserListItem(state.userList[index])
+                        },
+                        modifier = Modifier.padding(
+                            top = paddingValues.calculateTopPadding(),
+                            start = 4.dp,
+                            end = 4.dp,
+                            bottom = 4.dp,
+                        ),
+                        hasMoreAction = {
+                            LaunchedEffect(Unit) {
+                                viewModel.onLoadMoreData()
                             }
-                            if (state.hasMore) {
-                                item {
-                                    LaunchedEffect(Unit) {
-                                        viewModel.onLoadMoreData()
-                                    }
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(), // 使 Box 填充父容器的整个空间
-                                        contentAlignment = Alignment.Center // 使内容居中
-                                    ) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier
-                                                .padding(6.dp)
-                                                .size(32.dp),
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        ShowCustomToast(
-                            showToastState = (!state.hasMore && state.isLoadingMore),
-                            message = "NO MORE DATA",
-                        )
-                        PullRefreshIndicator(
-                            refreshing = state.isRefreshing,
-                            state = pullRefreshState,
-                            modifier = Modifier.align(Alignment.TopCenter),
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
+                        },
+                        itemClickEvent = {
+                            navController.navigate(Screens.Detail.createRoute(it.login))
+                        },
+                        isRefreshing = state.isRefreshing,
+                        hasMore = state.hasMore,
+                        isShowCustomToast = (!state.hasMore && state.isLoadingMore),
+                        itemClickable = true
+                    )
                 }
             }
         }

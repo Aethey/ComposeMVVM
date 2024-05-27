@@ -2,7 +2,6 @@ package com.example.gitsimpledemo.ui.userdetail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,13 +11,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +35,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,7 +54,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.gitsimpledemo.Application
 import com.example.gitsimpledemo.R
-import com.example.gitsimpledemo.ui.userdetail.components.TimeLineView
+import com.example.gitsimpledemo.ui.components.CustomLazyColumn
+import com.example.gitsimpledemo.ui.userdetail.components.TimeLineItem
 import com.example.gitsimpledemo.util.CommonUtils
 import com.kevinnzou.web.LoadingState
 import com.kevinnzou.web.WebView
@@ -62,7 +66,7 @@ import com.kevinnzou.web.rememberWebViewState
  * Date: 2024/05/22
  * Description: user detail screen
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun UserDetailScreen(
     navController: NavHostController,
@@ -76,6 +80,12 @@ fun UserDetailScreen(
     )
     // initState
     val state = viewModel.uiState
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = state.isRefreshing,
+        onRefresh = { viewModel.onRefreshData() }
+    )
+
+    val listState = rememberLazyListState()
     //  init widget param
     //  screen size
     val configuration = LocalConfiguration.current
@@ -99,17 +109,33 @@ fun UserDetailScreen(
             CustomAppBar(scrollBehavior, state)
         }
     ) { paddingValues ->
-        print(paddingValues)
-        Box(modifier = Modifier.padding(paddingValues)) {
-            TimeLineView(
-                repoList = state.listRepositories,
-                width = screenWidth * 4 / 5
-            ) {
-                showModal.value = true
-                state.currentUrl = it
-            }
 
-        }
+        CustomLazyColumn(
+            listState = listState,
+            pullRefreshState = pullRefreshState,
+            dataList = state.listRepositories,
+            listItemContent = @Composable { index: Int ->
+                TimeLineItem(state.listRepositories, index, screenWidth * 4 / 5) {
+                    showModal.value = true
+                    state.currentUrl = it
+                }
+            },
+            modifier = Modifier
+                .padding(
+                    top = paddingValues.calculateTopPadding(),
+                )
+                .padding(16.dp),
+            hasMoreAction = {
+                LaunchedEffect(Unit) {
+                    viewModel.onLoadMoreData()
+                }
+            },
+            isRefreshing = state.isRefreshing,
+            hasMore = state.hasMore,
+            isShowCustomToast = (!state.hasMore && state.isLoadingMore),
+            itemClickEvent = {},
+            itemClickable = false
+        )
     }
 }
 
@@ -170,8 +196,9 @@ fun CustomAppBar(scrollBehavior: TopAppBarScrollBehavior, state: UserDetailState
                         modifier = Modifier.size(16.dp)
 
                     )
+                    print("state.location is ${state.location}")
                     Text(
-                        state.location,
+                        if (state.location == "") "No place info" else state.location,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )

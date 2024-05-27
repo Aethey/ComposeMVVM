@@ -58,99 +58,83 @@ fun TimeLineView(
         modifier = Modifier.padding(16.dp)
     ) {
         items(repoList.size) { index ->
-            ListItem {
-                // get language color from LanguageColorManager by {repoList[index].node.primaryLanguage}
-                val colorString = repoList[index].node.primaryLanguage?.let {
-                    LanguageColorManager.getColor(
-                        it.name
-                    )
-                } ?: LanguageDefaultString
-                val textColorString = LanguageColorManager.getAdvancedContrastColor(colorString)
-                val nextColorString = if (index + 1 < repoList.size) {
-                    repoList[index + 1].node.primaryLanguage?.let {
-                        LanguageColorManager.getColor(it.name)
-                    } ?: LanguageDefaultString
-                } else {
-                    LanguageDefaultString
-                }
-                val color = Color(android.graphics.Color.parseColor(colorString))
-                val textColor = Color(android.graphics.Color.parseColor(textColorString))
-                val nextColor = Color(android.graphics.Color.parseColor(nextColorString))
+            TimeLineItem(
+                repoList,
+                index,
+                width,
+                onOpenWeb
+            )
+        }
+    }
+}
 
-                TimeLineItem(
-                    position = TimelineNodePosition.MIDDLE,
-                    circleParameters = CircleParametersDefaults.circleParameters(
-                        backgroundColor = color
-                    ),
-                    lineParameters = LineParametersDefaults.linearGradient(
-                        startColor = color,
-                        endColor = nextColor
-                    ),
-                ) { modifier ->
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun TimeLineItem(repoList: List<RepoItem>, index: Int, width: Int, onOpenWeb: (String) -> Unit) {
+    ListItem {
+        // get language color from LanguageColorManager by {repoList[index].node.primaryLanguage}
+        val colorString = repoList[index].node.primaryLanguage?.let {
+            LanguageColorManager.getColor(
+                it.name
+            )
+        } ?: LanguageDefaultString
+        val textColorString = LanguageColorManager.getAdvancedContrastColor(colorString)
+        val nextColorString = if (index + 1 < repoList.size) {
+            repoList[index + 1].node.primaryLanguage?.let {
+                LanguageColorManager.getColor(it.name)
+            } ?: LanguageDefaultString
+        } else {
+            LanguageDefaultString
+        }
+        val color = Color(android.graphics.Color.parseColor(colorString))
+        val textColor = Color(android.graphics.Color.parseColor(textColorString))
+        val nextColor = Color(android.graphics.Color.parseColor(nextColorString))
+
+        TimeLineItemPart(
+            position = TimelineNodePosition.MIDDLE,
+            circleParameters = CircleParametersDefaults.circleParameters(
+                backgroundColor = color
+            ),
+            lineParameters = LineParametersDefaults.linearGradient(
+                startColor = color,
+                endColor = nextColor
+            ),
+        ) { modifier ->
+            Column(
+                modifier = modifier
+                    .width(width.dp)
+                    .padding(start = 10.dp),
+            ) {
+                // repo create time
+                RepoCreateTime(repoList[index].node.createdAt)
+                // repo content
+                Card(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    //colors = CardDefaults.cardColors(containerColor = color)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                ) {
                     Column(
-                        modifier = modifier
-                            .width(width.dp)
-                            .padding(start = 10.dp),
+                        modifier = Modifier.padding(bottom = 8.dp)
                     ) {
-                        Text(
-                            CommonUtils.convertIsoToSimpleDate(repoList[index].node.createdAt),
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                        Card(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            //colors = CardDefaults.cardColors(containerColor = color)
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                        // repo language
+                        repoList[index].node.primaryLanguage?.let {
+                            RepoLanguageTag(
+                                it.name, color, textColor
+                            )
+                        } ?: RepoLanguageTag("Unknown", color, textColor)
+                        // repo name
+                        RepoName(repoList[index].node.name)
+                        // repo description
+                        repoList[index].node.description?.let {
+                            RepoDescription(it)
+                        }
+                        // repo star
+                        RepoFooter(
+                            repoList[index].node.stargazers.totalCount,
                         ) {
-                            Column(
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            ) {
-                                repoList[index].node.primaryLanguage?.let {
-                                    TagView(
-                                        it.name, color, textColor
-                                    )
-                                }
-                                    ?: TagView("Unknown", color, textColor)
-                                Text(
-                                    repoList[index].node.name,
-                                    style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSecondaryContainer),
-                                    modifier = Modifier.padding(horizontal = 8.dp)
-                                )
-                                repoList[index].node.description?.let {
-                                    Text(
-                                        it,
-                                        style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSecondaryContainer),
-                                        modifier = Modifier.padding(12.dp)
-                                    )
-                                }
-                                Row(
-                                    modifier = Modifier.padding(start = 12.dp, top = 16.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Star,
-                                        contentDescription = "Localized description",
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Text(CommonUtils.formatNumber(repoList[index].node.stargazers.totalCount))
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    Text(
-                                        "Open Link",
-                                        modifier = Modifier
-                                            .padding(end = 12.dp)
-
-                                            .clickable {
-                                                onOpenWeb(repoList[index].node.url)
-                                            },
-                                        style = MaterialTheme.typography.bodyMedium.copy(
-                                            color = Color.Blue,
-                                            textDecoration = TextDecoration.Underline
-                                        ),
-                                    )
-                                }
-                            }
+                            onOpenWeb(repoList[index].node.url)
                         }
                     }
                 }
@@ -161,7 +145,67 @@ fun TimeLineView(
 
 
 @Composable
-fun TagView(name: String, containerColor: Color, textColor: Color) {
+fun RepoCreateTime(createdAt: String) {
+    Text(
+        text = CommonUtils.convertIsoToSimpleDate(createdAt),
+        style = MaterialTheme.typography.titleLarge,
+        modifier = Modifier.padding(horizontal = 8.dp)
+    )
+}
+
+
+@Composable
+fun RepoName(name: String) {
+    Text(
+        text = name,
+        style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSecondaryContainer),
+        modifier = Modifier.padding(horizontal = 8.dp)
+    )
+}
+
+
+@Composable
+fun RepoDescription(description: String) {
+    Text(
+        text = description,
+        style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSecondaryContainer),
+        modifier = Modifier.padding(12.dp)
+    )
+}
+
+@Composable
+fun RepoFooter(starCount: Long, onOpenWeb: () -> Unit) {
+    Row(
+        modifier = Modifier.padding(start = 12.dp, top = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Star,
+            contentDescription = "Star icon",
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            text = CommonUtils.formatNumber(starCount),
+            modifier = Modifier.padding(start = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = "Open Link",
+            modifier = Modifier
+                .padding(end = 12.dp)
+                .clickable { onOpenWeb() },
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = Color.Blue,
+                textDecoration = TextDecoration.Underline
+            ),
+        )
+    }
+}
+
+
+@Composable
+fun RepoLanguageTag(name: String, containerColor: Color, textColor: Color) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start,
@@ -182,6 +226,7 @@ fun TagView(name: String, containerColor: Color, textColor: Color) {
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 private fun TimeLineViewPreview() {
@@ -190,7 +235,7 @@ private fun TimeLineViewPreview() {
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        TimeLineItem(
+        TimeLineItemPart(
             position = TimelineNodePosition.FIRST,
             circleParameters = CircleParametersDefaults.circleParameters(
                 backgroundColor = LightBlue
@@ -201,7 +246,7 @@ private fun TimeLineViewPreview() {
             ),
         ) { modifier -> MessageBubble(modifier, containerColor = LightBlue) }
 
-        TimeLineItem(
+        TimeLineItemPart(
             position = TimelineNodePosition.MIDDLE,
             circleParameters = CircleParametersDefaults.circleParameters(
                 backgroundColor = Purple
@@ -211,7 +256,7 @@ private fun TimeLineViewPreview() {
                 endColor = Coral
             ),
         ) { modifier -> MessageBubble(modifier, containerColor = Purple) }
-        TimeLineItem(
+        TimeLineItemPart(
             position = TimelineNodePosition.MIDDLE,
             circleParameters = CircleParametersDefaults.circleParameters(
                 backgroundColor = Purple
@@ -222,7 +267,7 @@ private fun TimeLineViewPreview() {
             ),
         ) { modifier -> MessageBubble(modifier, containerColor = Purple) }
 
-        TimeLineItem(
+        TimeLineItemPart(
             TimelineNodePosition.LAST,
             circleParameters = CircleParametersDefaults.circleParameters(
                 backgroundColor = Coral

@@ -3,7 +3,6 @@ package com.example.gitsimpledemo.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,7 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import com.example.gitsimpledemo.Constants
 
 /**
  * Author: Ryu
@@ -31,51 +30,47 @@ import androidx.navigation.NavController
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun <T> CustomLazyColumn(
-    hasMoreAction: () -> Unit,
+    hasMoreAction: @Composable () -> Unit,
     dataList: List<T>,
-    navController: NavController,
-    paddingValues: PaddingValues,
     listState: LazyListState,
     pullRefreshState: PullRefreshState,
-    listItemContent: @Composable (T) -> Unit,
-    listItemClickEvent: (T) -> Unit,
+    listItemContent: @Composable (Int) -> Unit,
+    itemClickEvent: (T) -> Unit,
+    itemClickable: Boolean,
     hasMore: Boolean,
     isShowCustomToast: Boolean,
     isRefreshing: Boolean,
-    padding: PaddingValues,
-
-    ) {
+    modifier: Modifier,
+) {
 
     Box {
         LazyColumn(
             state = listState,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
-                .padding(
-                    padding
-                )
                 .pullRefresh(pullRefreshState),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(dataList.size) { itemContent ->
+            items(dataList.size) { index ->
                 ListItem(
-                    modifier = Modifier.clickable {
-                        listItemClickEvent(dataList[itemContent])
-
-                    }
+                    modifier = Modifier
+                        .then(
+                            if (itemClickable) {
+                                Modifier.clickable { itemClickEvent(dataList[index]) }
+                            } else {
+                                Modifier
+                            }
+                        )
                 ) {
-                    listItemContent(dataList[itemContent])
+                    listItemContent(index)
                 }
             }
             if (hasMore) {
                 item {
                     hasMoreAction()
-                    //LaunchedEffect(Unit) {
-                    //    viewModel.onLoadMoreData()
-                    //}
                     Box(
-                        modifier = Modifier.fillMaxSize(), // 使 Box 填充父容器的整个空间
-                        contentAlignment = Alignment.Center // 使内容居中
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier
@@ -89,7 +84,7 @@ fun <T> CustomLazyColumn(
         }
         ShowCustomToast(
             showToastState = (isShowCustomToast),
-            message = "NO MORE DATA",
+            message = Constants.NO_MORE,
         )
         PullRefreshIndicator(
             refreshing = isRefreshing,

@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
  */
 
 @Composable
-fun TimeLineItem(
+fun TimeLineItemPart(
     position: TimelineNodePosition,
     circleParameters: CircleParameters,
     lineParameters: LineParameters? = null,

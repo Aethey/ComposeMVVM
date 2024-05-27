@@ -35,21 +35,25 @@ class UserDetailViewModel(
         onGetRepositories(username)
     }
 
-    private fun onGetRepositories(userName: String) {
+    private fun onGetRepositories(
+        userName: String,
+        append: Boolean = false
+    ) {
         viewModelScope.launch {
-            repository.getRepositoriesGraphQL(userName, "").apply {
+            repository.getRepositoriesGraphQL(userName, uiState.endCursor).apply {
                 when (this) {
                     is NetworkResult.Success -> {
-                        val hasNextPage = this.data.data.user.repositories.pageInfo.hasNextPage
+                        val hasMore = this.data.data.user.repositories.pageInfo.hasNextPage
                         uiState = uiState.copy(
                             isRefreshing = false,
                             isError = false,
                             isRepositoriesLoading = false,
-                            listRepositories = this.data.data.user.repositories.edges,
-                            endCursor = if (hasNextPage) {
+                            isLoadingMore = false,
+                            listRepositories = if (append) uiState.listRepositories + this.data.data.user.repositories.edges else this.data.data.user.repositories.edges,
+                            hasMore = hasMore,
+                            endCursor = if (hasMore) {
                                 this.data.data.user.repositories.pageInfo.endCursor
                             } else uiState.endCursor,
-                            hasNextPage = hasNextPage,
                         )
                     }
 
@@ -58,6 +62,7 @@ class UserDetailViewModel(
                             isRefreshing = false,
                             isError = true,
                             isRepositoriesLoading = false,
+                            isLoadingMore = false,
                             errorMessage = this.exception.message ?: "net error",
                         )
                     }
@@ -82,7 +87,7 @@ class UserDetailViewModel(
                             followers = this.data.followers,
                             following = this.data.following,
                             name = this.data.name,
-                            location = this.data.location,
+                            location = this.data.location ?: "No place info",
                         )
                     }
 
@@ -101,6 +106,17 @@ class UserDetailViewModel(
                 }
             }
         }
+    }
+
+    fun onRefreshData() {
+        uiState = uiState.copy(isRefreshing = true, endCursor = "")
+        onGetRepositories(username)
+    }
+
+    fun onLoadMoreData() {
+        uiState = uiState.copy(isLoadingMore = true)
+        onGetRepositories(uiState.userName, true)
+
     }
 }
 

@@ -23,7 +23,7 @@ data class UserListState(
     val isLoadingMore: Boolean = false,
 
     // Indicates whether there are more items to load, used for implementing pagination.
-    val hasMore: Boolean = true,
+    val hasMore: Boolean = false,
 
     // Indicates whether the search interface in the user list is open.
     val isSearching: Boolean = false,

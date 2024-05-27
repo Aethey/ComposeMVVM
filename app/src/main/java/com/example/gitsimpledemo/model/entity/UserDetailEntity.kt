@@ -24,7 +24,7 @@ data class UserDetailEntity(
     @JsonProperty("avatar_url")
     val avatarUrl: String,
     @JsonProperty("location")
-    val location: String,
+    val location: String? = null,
 //    no use in current feature
 //    @JsonProperty("node_id")
 //    val nodeId: String,

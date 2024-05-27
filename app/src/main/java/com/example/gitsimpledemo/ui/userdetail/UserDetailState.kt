@@ -29,9 +29,6 @@ data class UserDetailState(
     // The current URL being displayed in the WebView.
     var currentUrl: String = "",
 
-    // Indicates whether there are more pages of data to load (for pagination).
-    var hasNextPage: Boolean = true,
-
     // The number of followers the user has.
     var followers: Long = 0,
 
@@ -46,6 +43,12 @@ data class UserDetailState(
 
     // True if data is currently being loaded, otherwise false.
     val isLoading: Boolean = false,
+
+    // Indicates whether there are more items to load, used for implementing pagination.
+    val hasMore: Boolean = false,
+
+    // Indicates whether more data is currently being loaded.
+    val isLoadingMore: Boolean = false,
 
     // True if the repositories are being loaded, otherwise false.
     val isRepositoriesLoading: Boolean = false,
