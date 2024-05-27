@@ -113,7 +113,7 @@ fun UserDetailScreen(
         }
     ) { paddingValues ->
         if (state.listRepositories.isEmpty()) {
-            InitPage {}
+            InitPage ()
         } else if (state.isEmpty) {
             EmptyPage {
                 viewModel.onRefreshData()

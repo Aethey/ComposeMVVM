@@ -266,7 +266,7 @@ fun UserListScreen(
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
                 ) {
                     if (state.userList.isEmpty()) {
-                        InitPage {}
+                        InitPage()
                     } else if (state.isEmpty) {
                         EmptyPage {}
                     } else {

@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.gitsimpledemo.Constants
 import com.example.gitsimpledemo.R
 
 /**
@@ -50,7 +51,7 @@ fun EmptyPage(
                     .height(128.dp)
                     .width(128.dp)
             )
-            Text("sorry,data empty now", fontSize = 16.sp, color = Color.Black,modifier = Modifier.padding(24.dp))
+            Text(Constants.EMPTY_DATA, fontSize = 16.sp, color = Color.Black,modifier = Modifier.padding(24.dp))
             Button(
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                 onClick = {

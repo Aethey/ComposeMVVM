@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.gitsimpledemo.Constants
 import com.example.gitsimpledemo.R
 
 /**
@@ -32,7 +33,6 @@ import com.example.gitsimpledemo.R
 
 @Composable
 fun InitPage(
-    onRefresh: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -50,30 +50,7 @@ fun InitPage(
                     .height(128.dp)
                     .width(128.dp)
             )
-            Text("Preparing data", fontSize = 16.sp, color = Color.Black,modifier = Modifier.padding(24.dp))
-            //Button(
-            //    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-            //    onClick = {
-            //        onRefresh()
-            //    },
-            //    content = {
-            //        // Specify the icon using the icon parameter
-            //        Row(
-            //            modifier = Modifier.padding(8.dp),
-            //        ) {
-            //            Image(
-            //                painter = painterResource(id = R.drawable.reload),
-            //                contentDescription = null,
-            //                modifier = Modifier
-            //                    .height(24.dp)
-            //                    .width(24.dp),
-            //            )
-            //        }
-            //        Spacer(modifier = Modifier.width(8.dp)) // Adjust spacing
-            //        Text("Refresh", fontSize = 16.sp, color = Color.Black)
-            //    }
-            //)
-
+            Text(Constants.Init_DATA, fontSize = 16.sp, color = Color.Black,modifier = Modifier.padding(24.dp))
         }
     }
 }
@@ -82,7 +59,5 @@ fun InitPage(
 @Preview
 @Composable
 fun InitPagePreview() {
-    InitPage(onRefresh = {
-        println("let us onRefresh")
-    })
+    InitPage()
 }

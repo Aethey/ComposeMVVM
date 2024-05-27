@@ -24,22 +24,33 @@ import com.example.gitsimpledemo.Constants
 /**
  * Author: Ryu
  * Date: 2024/05/27
- * Description:
+ * Description: show list view with refresh and load more
  */
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun <T> CustomLazyColumn(
+    // load more action
     hasMoreAction: @Composable () -> Unit,
+    // data list
     dataList: List<T>,
+    // lazy column state
     listState: LazyListState,
+    //pull refresh state
     pullRefreshState: PullRefreshState,
+    // item view
     listItemContent: @Composable (Int) -> Unit,
+    // item click event
     itemClickEvent: (T) -> Unit,
+    // control item clickable
     itemClickable: Boolean,
+    // load more state
     hasMore: Boolean,
+    // show info when dno more data
     isShowCustomToast: Boolean,
+    // refresh state
     isRefreshing: Boolean,
+    // modifier
     modifier: Modifier,
 ) {
 

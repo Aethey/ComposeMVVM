@@ -58,6 +58,7 @@ fun CustomToast(
     message: String = "default message",
     height: Dp = 60.dp,
     width: Dp? = null,
+    // call when dismiss
     onDismissCallback: @Composable () -> Unit = {},
 ) {
     val isTransitionStarted = remember { mutableStateOf(false) }
