@@ -294,7 +294,12 @@ fun UserListScreen(
                                 }
                             },
                             itemClickEvent = {
-                                navController.navigate(Screens.Detail.createRoute(it.login))
+                                navController.navigate(
+                                    Screens.Detail.createRoute(
+                                        it.login,
+                                        it.type
+                                    )
+                                )
                             },
                             isRefreshing = state.isRefreshing,
                             hasMore = state.hasMore,

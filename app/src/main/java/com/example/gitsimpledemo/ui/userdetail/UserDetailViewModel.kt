@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.gitsimpledemo.Constants
 import com.example.gitsimpledemo.data.network.api.ApiService
 import com.example.gitsimpledemo.data.network.api.NetworkResult
 import com.example.gitsimpledemo.data.network.api.RetrofitManager
@@ -21,8 +22,8 @@ import kotlinx.coroutines.launch
  */
 class UserDetailViewModel(
     private val repository: UserDetailResponse,
-    private val languageColorDao: LanguageColorDao,
     private val username: String,
+    private val usertype: String,
 ) : ViewModel() {
     var uiState by mutableStateOf(UserDetailState())
 
@@ -40,38 +41,87 @@ class UserDetailViewModel(
         append: Boolean = false
     ) {
         viewModelScope.launch {
-            repository.getRepositoriesGraphQL(userName, uiState.endCursor).apply {
-                when (this) {
-                    is NetworkResult.Success -> {
-                        val hasMore = this.data.data.user.repositories.pageInfo.hasNextPage
-                        uiState = uiState.copy(
-                            isRefreshing = false,
-                            isError = false,
-                            isRepositoriesLoading = false,
-                            isLoadingMore = false,
-                            listRepositories = if (append) uiState.listRepositories + this.data.data.user.repositories.edges else this.data.data.user.repositories.edges,
-                            hasMore = hasMore,
-                            endCursor = if (hasMore) {
-                                this.data.data.user.repositories.pageInfo.endCursor
-                            } else uiState.endCursor,
-                            isEmpty = uiState.listRepositories.isEmpty() && this.data.data.user.repositories.edges.isEmpty(),
-                        )
-                    }
 
-                    is NetworkResult.Error -> {
-                        uiState = uiState.copy(
-                            isRefreshing = false,
-                            isError = true,
-                            isRepositoriesLoading = false,
-                            isLoadingMore = false,
-                            errorMessage = this.exception.message ?: "net error",
-                            isEmpty = uiState.listRepositories.isEmpty(),
-                        )
-                    }
+            when (usertype) {
+                Constants.TYPE_USER -> {
+                    repository.getUserRepositoriesGraphQL(userName, usertype, uiState.endCursor)
+                        .apply {
+                            when (this) {
+                                is NetworkResult.Success -> {
+                                    val hasMore =
+                                        this.data.data.user.repositories.pageInfo.hasNextPage
+                                    uiState = uiState.copy(
+                                        isRefreshing = false,
+                                        isError = false,
+                                        isRepositoriesLoading = false,
+                                        isLoadingMore = false,
+                                        listRepositories = if (append) uiState.listRepositories + this.data.data.user.repositories.edges else this.data.data.user.repositories.edges,
+                                        hasMore = hasMore,
+                                        endCursor = if (hasMore) {
+                                            this.data.data.user.repositories.pageInfo.endCursor
+                                        } else uiState.endCursor,
+                                        isEmpty = uiState.listRepositories.isEmpty() && this.data.data.user.repositories.edges.isEmpty(),
+                                    )
+                                }
 
-                    NetworkResult.Loading -> TODO()
+                                is NetworkResult.Error -> {
+                                    uiState = uiState.copy(
+                                        isRefreshing = false,
+                                        isError = true,
+                                        isRepositoriesLoading = false,
+                                        isLoadingMore = false,
+                                        errorMessage = this.exception.message ?: "net error",
+                                        isEmpty = uiState.listRepositories.isEmpty(),
+                                    )
+                                }
+
+                                NetworkResult.Loading -> TODO()
+                            }
+                        }
+                }
+
+                Constants.TYPE_ORGANIZATION -> {
+                    repository.getOrganizationRepositoriesGraphQL(
+                        userName,
+                        usertype,
+                        uiState.endCursor
+                    ).apply {
+                        when (this) {
+                            is NetworkResult.Success -> {
+                                val hasMore =
+                                    this.data.data.organization.repositories.pageInfo.hasNextPage
+                                uiState = uiState.copy(
+                                    isRefreshing = false,
+                                    isError = false,
+                                    isRepositoriesLoading = false,
+                                    isLoadingMore = false,
+                                    listRepositories = if (append) uiState.listRepositories + this.data.data.organization.repositories.edges else this.data.data.organization.repositories.edges,
+                                    hasMore = hasMore,
+                                    endCursor = if (hasMore) {
+                                        this.data.data.organization.repositories.pageInfo.endCursor
+                                    } else uiState.endCursor,
+                                    isEmpty = uiState.listRepositories.isEmpty() && this.data.data.organization.repositories.edges.isEmpty(),
+                                )
+                            }
+
+                            is NetworkResult.Error -> {
+                                uiState = uiState.copy(
+                                    isRefreshing = false,
+                                    isError = true,
+                                    isRepositoriesLoading = false,
+                                    isLoadingMore = false,
+                                    errorMessage = this.exception.message ?: "net error",
+                                    isEmpty = uiState.listRepositories.isEmpty(),
+                                )
+                            }
+
+                            NetworkResult.Loading -> TODO()
+                        }
+                    }
                 }
             }
+
+
         }
     }
 
@@ -126,14 +176,15 @@ class UserDetailViewModel(
 class UserDetailViewModelFactory(
     private val languageColorDao: LanguageColorDao,
     private val username: String,
+    private val usertype: String,
 ) :
     ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         return UserDetailViewModel(
             UserDetailResponse(RetrofitManager.createService(ApiService::class.java)),
-            languageColorDao,
-            username
+            username,
+            usertype
         ) as T
     }
 }

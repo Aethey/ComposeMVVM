@@ -9,11 +9,12 @@ package com.example.gitsimpledemo.model.entity
 
 data class GraphQLRequestEntity(
     val user: String,
+    val type: String,
     val endCursor: String? = "",
     var sort: String = "DESC",
     val query: String =
         """
-    query {user(login: "$user") {
+    query {${type.lowercase()}(login: "$user") {
     repositories(first: 10,after: "$endCursor", orderBy: {field: CREATED_AT, direction: $sort}, isFork: false) {
       pageInfo {
         endCursor

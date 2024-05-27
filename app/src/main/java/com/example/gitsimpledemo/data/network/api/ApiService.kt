@@ -1,7 +1,8 @@
 package com.example.gitsimpledemo.data.network.api
 
 import com.example.gitsimpledemo.model.entity.GraphQLRequestBody
-import com.example.gitsimpledemo.model.entity.RepoGraphQLResponseEntity
+import com.example.gitsimpledemo.model.entity.RepoGraphQLResponseOrganizationEntity
+import com.example.gitsimpledemo.model.entity.RepoGraphQLResponseUserEntity
 import com.example.gitsimpledemo.model.entity.ResponseListEntity
 import com.example.gitsimpledemo.model.entity.UserDetailEntity
 import com.example.gitsimpledemo.model.entity.UserEntityList
@@ -58,7 +59,11 @@ interface ApiService {
 
     // get user's repositories(GraphQL)
     @POST("graphql")
-    suspend fun getRepoListGraphQL(@Body body: GraphQLRequestBody): RepoGraphQLResponseEntity
+    suspend fun getUserRepoListGraphQL(@Body body: GraphQLRequestBody): RepoGraphQLResponseUserEntity
+
+    // get Organization's repositories(GraphQL)
+    @POST("graphql")
+    suspend fun getOrganizationRepoListGraphQL(@Body body: GraphQLRequestBody): RepoGraphQLResponseOrganizationEntity
 
 }
 

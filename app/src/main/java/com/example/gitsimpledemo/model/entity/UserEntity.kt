@@ -17,6 +17,8 @@ data class UserEntity(
     val id: Long,
     @JsonProperty("avatar_url")
     val avatarUrl: String,
+    @JsonProperty("type")
+    val type: String,
 //    no use in current feature
 //    @JsonProperty("node_id")
 //    val nodeId: String,

@@ -10,7 +10,10 @@ sealed class Screens(val route: String) {
     data object Main : Screens("main")
     data object Home : Screens("home")
     data object List : Screens("list")
-    data object Detail : Screens("detail/{username}") {
-        fun createRoute(username: String) = "detail/$username"
+    data object Detail : Screens("detail/{username}/{usertype}") {
+        fun createRoute(
+            username: String,
+            usertype: String,
+        ) = "detail/$username/$usertype"
     }
 }

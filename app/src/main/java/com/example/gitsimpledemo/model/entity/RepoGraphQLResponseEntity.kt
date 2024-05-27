@@ -9,17 +9,32 @@ import com.fasterxml.jackson.annotation.JsonProperty
  */
 
 
-data class RepoGraphQLResponseEntity(
+data class RepoGraphQLResponseUserEntity(
     @JsonProperty("data")
-    val data: Data,
+    val data: UserData,
 )
 
-data class Data(
+data class RepoGraphQLResponseOrganizationEntity(
+    @JsonProperty("data")
+    val data: OrganizationData,
+)
+
+data class OrganizationData(
+    @JsonProperty("organization")
+    val organization: Organization,
+)
+
+data class UserData(
     @JsonProperty("user")
     val user: User,
 )
 
 data class User(
+    @JsonProperty("repositories")
+    val repositories: Repositories,
+)
+
+data class Organization(
     @JsonProperty("repositories")
     val repositories: Repositories,
 )
@@ -69,3 +84,4 @@ data class Stargazers(
     @JsonProperty("totalCount")
     val totalCount: Long,
 )
+

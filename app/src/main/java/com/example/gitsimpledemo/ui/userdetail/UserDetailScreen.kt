@@ -72,11 +72,13 @@ import com.kevinnzou.web.rememberWebViewState
 @Composable
 fun UserDetailScreen(
     navController: NavHostController,
-    username: String
+    username: String,
+    usertype: String
 ) {
     val viewModel: UserDetailViewModel = viewModel(
         factory = UserDetailViewModelFactory(
             username = username,
+            usertype = usertype,
             languageColorDao = Application.instance.database.languageColorDao()
         )
     )

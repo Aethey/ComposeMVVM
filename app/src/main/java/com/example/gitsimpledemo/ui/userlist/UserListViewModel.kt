@@ -36,6 +36,7 @@ class UserListViewModel(
     }
 
     fun onInitialData() {
+        uiState = uiState.copy(searchQuery = "")
         onGetDataList(0)
     }
 
@@ -51,9 +52,9 @@ class UserListViewModel(
 
     fun onKeyboardSearch(type: SearchType) {
         println("type is onKeyboardSearch  ${uiState.searchQuery}")
+        uiState = uiState.copy(searchQuery = uiState.searchQueryInput)
         viewModelScope.launch {
             if (uiState.searchQueryInput.isNotBlank()) {
-                uiState = uiState.copy(searchQuery = uiState.searchQueryInput)
                 val newHistory =
                     SearchHistoryEntity(searchQuery = uiState.searchQueryInput, type = type)
                 searchHistoryDao.upsert(newHistory)

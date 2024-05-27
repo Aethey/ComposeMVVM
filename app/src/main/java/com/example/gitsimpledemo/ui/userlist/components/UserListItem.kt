@@ -77,6 +77,7 @@ fun SimpleComposablePreview() {
     UserListItem(UserEntity(
         id = 1,
         login = "Ryu",
-        avatarUrl = "https://avatars.githubusercontent.com/u/1?v=4"
+        avatarUrl = "https://avatars.githubusercontent.com/u/1?v=4",
+        type = "User"
     ))
 }

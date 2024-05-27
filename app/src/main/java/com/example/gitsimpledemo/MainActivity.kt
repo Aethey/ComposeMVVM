@@ -42,12 +42,18 @@ fun App() {
         //composable(Screens.Detail.route) { UserDetailScreen(navController = navController) }
         composable(
             route = Screens.Detail.route,
-            arguments = listOf(navArgument("username") { type = NavType.StringType })
+            arguments = listOf(
+                navArgument("username") { type = NavType.StringType },
+                navArgument("usertype") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
-            val username = backStackEntry.arguments?.getString("username")
-            if (username != null) {
-                UserDetailScreen(navController = navController, username = username)
-            }
+            val username = backStackEntry.arguments?.getString("username") ?: ""
+            val usertype = backStackEntry.arguments?.getString("usertype") ?: ""
+            UserDetailScreen(
+                navController = navController,
+                username = username,
+                usertype = usertype
+            )
         }
     }
 }
