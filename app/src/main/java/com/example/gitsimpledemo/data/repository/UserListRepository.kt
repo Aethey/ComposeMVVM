@@ -12,7 +12,7 @@ import com.example.gitsimpledemo.model.entity.UserEntityList
  * Date: 2024/05/23
  * Description: UserListRepository
  */
-class UserListRepository(private val apiService: ApiService) {
+open class UserListRepository(private val apiService: ApiService) {
     private val pageSize = Constants.PAGE_SIZE
 
     suspend fun getData(since: Long): NetworkResult<UserEntityList> {

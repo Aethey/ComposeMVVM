@@ -79,18 +79,23 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.coil.compose)
     implementation(libs.androidx.material)
-//    room
+    //  room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
-//    retrofit2
+    //  retrofit2
     implementation(libs.retrofit)
     implementation(libs.logging.interceptor)
-//    https://transform.tools/json-to-kotlin
+    //  https://transform.tools/json-to-kotlin
     implementation(libs.jackson.annotations)
     implementation(libs.converter.jackson)
-    //    webview
-    implementation("io.github.kevinnzou:compose-webview:0.33.6")
+    //  webview
+    implementation(libs.compose.webview)
+    //  test
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.androidx.core.testing)
 
 
 //    flutter add to app
