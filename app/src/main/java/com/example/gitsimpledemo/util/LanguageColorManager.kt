@@ -12,7 +12,10 @@ import org.json.JSONObject
 /**
  * Author: Ryu
  * Date: 2024/05/26
- * Description:
+ * Description: manage language color
+ * base data json file in assets, save to db when first time
+ * color base file get from:
+ * https://github.com/github-linguist/linguist/blob/master/lib/linguist/languages.yml
  */
 object LanguageColorManager {
     private var colorMap: MutableMap<String, String> = mutableMapOf()
@@ -63,25 +66,20 @@ object LanguageColorManager {
     }
 
     fun getAdvancedContrastColor(hexColor: String): String {
-        // 移除颜色字符串前的 '#' 字符
-        val cleanHex = hexColor.removePrefix("#")
 
-        // 确保字符串长度正确
+        val cleanHex = hexColor.removePrefix("#")
         if (cleanHex.length != 6) {
             throw IllegalArgumentException("Invalid hex color length. Color should be six characters long.")
         }
 
-        // 解析十六进制颜色字符串为 RGB 值
         val r = cleanHex.substring(0, 2).toInt(16)
         val g = cleanHex.substring(2, 4).toInt(16)
         val b = cleanHex.substring(4, 6).toInt(16)
 
-        // 计算对比色
         val contrastR = 255 - r
         val contrastG = 255 - g
         val contrastB = 255 - b
 
-        // 将计算后的 RGB 值转换回十六进制字符串
         return String.format("#%02x%02x%02x", contrastR, contrastG, contrastB)
     }
 }

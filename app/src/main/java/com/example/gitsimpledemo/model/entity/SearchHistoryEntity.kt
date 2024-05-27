@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 /**
  * Author: Ryu
  * Date: 2024/05/24
- * Description:
+ * Description: SearchHistoryEntity
  */
 
 @Entity(

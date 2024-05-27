@@ -5,7 +5,7 @@ import com.example.gitsimpledemo.data.mock.MockData
 /**
  * Author: Ryu
  * Date: 2024/05/23
- * Description:
+ * Description: load local json(just REST API)
  */
 class UserMockRepository(private val mockData: MockData) {
     private var currentPage = 0

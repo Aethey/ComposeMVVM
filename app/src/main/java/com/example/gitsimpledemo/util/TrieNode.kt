@@ -3,7 +3,7 @@ package com.example.gitsimpledemo.util
 /**
  * Author: Ryu
  * Date: 2024/05/24
- * Description:
+ * Description: this is a trie implementation for history search (no use now)
  */
 
 class TrieNode {

@@ -10,7 +10,7 @@ import com.example.gitsimpledemo.model.entity.UserDetailEntity
 /**
  * Author: Ryu
  * Date: 2024/05/26
- * Description:
+ * Description: UserDetailResponse
  */
 class UserDetailResponse(private val apiService: ApiService) {
 
@@ -31,26 +31,4 @@ class UserDetailResponse(private val apiService: ApiService) {
             apiService.getRepoListGraphQL(requestQuery)
         }
     }
-
-    //
-    //call.enqueue(object : Callback<RepoGraphQLResponseEntity> {
-    //    override fun onResponse(
-    //        call: Call<RepoGraphQLResponseEntity>,
-    //        response: Response<RepoGraphQLResponseEntity>
-    //    ) {
-    //        if (response.isSuccessful && response.body() != null) {
-    //            val repositories = response.body()!!.data.user.repositories
-    //            println("case is :${repositories.edges[0].node.name}")
-    //        } else {
-    //            // Handle error
-    //            println("case is :${response.message()}")
-    //        }
-    //    }
-    //
-    //    override fun onFailure(call: Call<RepoGraphQLResponseEntity>, t: Throwable) {
-    //        // Handle failure
-    //    }
-    //})
-
-
 }

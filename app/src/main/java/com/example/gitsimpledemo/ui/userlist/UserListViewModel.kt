@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 /**
  * Author: Ryu
  * Date: 2024/05/23
- * Description:
+ * Description: UserListViewModel control user list view state
  */
 class UserListViewModel(
     private val repository: UserListRepository,

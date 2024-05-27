@@ -33,16 +33,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.gitsimpledemo.model.entity.RepoItem
 import com.example.gitsimpledemo.ui.theme.Coral
+import com.example.gitsimpledemo.ui.theme.LanguageDefaultString
 import com.example.gitsimpledemo.ui.theme.LightBlue
 import com.example.gitsimpledemo.ui.theme.Purple
 import com.example.gitsimpledemo.util.CommonUtils
-import com.example.gitsimpledemo.util.DateConverter
 import com.example.gitsimpledemo.util.LanguageColorManager
 
 /**
  * Author: Ryu
  * Date: 2024/05/26
  * Description:
+ * user repositories list view
+ * time line style
  */
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -56,20 +58,20 @@ fun TimeLineView(
         modifier = Modifier.padding(16.dp)
     ) {
         items(repoList.size) { index ->
-            ListItem(
-            ) {
+            ListItem {
+                // get language color from LanguageColorManager by {repoList[index].node.primaryLanguage}
                 val colorString = repoList[index].node.primaryLanguage?.let {
                     LanguageColorManager.getColor(
                         it.name
                     )
-                } ?: "#AF8260"
+                } ?: LanguageDefaultString
                 val textColorString = LanguageColorManager.getAdvancedContrastColor(colorString)
                 val nextColorString = if (index + 1 < repoList.size) {
                     repoList[index + 1].node.primaryLanguage?.let {
                         LanguageColorManager.getColor(it.name)
-                    } ?: "#AF8260"
+                    } ?: LanguageDefaultString
                 } else {
-                    "#AF8260"
+                    LanguageDefaultString
                 }
                 val color = Color(android.graphics.Color.parseColor(colorString))
                 val textColor = Color(android.graphics.Color.parseColor(textColorString))
@@ -91,7 +93,7 @@ fun TimeLineView(
                             .padding(start = 10.dp),
                     ) {
                         Text(
-                            DateConverter.convertIsoToSimpleDate(repoList[index].node.createdAt),
+                            CommonUtils.convertIsoToSimpleDate(repoList[index].node.createdAt),
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.padding(horizontal = 8.dp)
                         )
@@ -153,8 +155,6 @@ fun TimeLineView(
                     }
                 }
             }
-
-
         }
     }
 }

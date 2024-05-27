@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 /**
  * Author: Ryu
  * Date: 2024/05/25
- * Description:
+ * Description: UserDetailViewModel control user detail view state
  */
 class UserDetailViewModel(
     private val repository: UserDetailResponse,

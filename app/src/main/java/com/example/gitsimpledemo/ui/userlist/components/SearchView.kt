@@ -37,7 +37,7 @@ import com.example.gitsimpledemo.ui.userlist.UserListState
 /**
  * Author: Ryu
  * Date: 2024/05/25
- * Description:
+ * Description: search view,with a history list
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -108,16 +108,18 @@ fun SearchView(
 }
 
 @Composable
-private fun CustomButton(content:String,onClick:()->Unit){
+private fun CustomButton(content: String, onClick: () -> Unit) {
     Box(
-        modifier = Modifier.padding(6.dp)
+        modifier = Modifier
+            .padding(6.dp)
             .border(
                 width = 2.dp,
                 color = Color.DarkGray,
                 shape = RoundedCornerShape(12.dp)
-            ).clickable {
-            onClick()
-        }
+            )
+            .clickable {
+                onClick()
+            }
     ) {
         Text(
             content, modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)

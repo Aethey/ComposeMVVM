@@ -71,10 +71,10 @@ import com.example.gitsimpledemo.model.entity.SearchType
 import com.example.gitsimpledemo.model.entity.SearchViewType
 import com.example.gitsimpledemo.route.Screens
 import com.example.gitsimpledemo.ui.components.ShowCustomToast
-import com.example.gitsimpledemo.ui.userlist.components.AlertDialogExample
+import com.example.gitsimpledemo.ui.userlist.components.AlertDialogExit
 import com.example.gitsimpledemo.ui.userlist.components.ErrorPage
 import com.example.gitsimpledemo.ui.userlist.components.SearchView
-import com.example.gitsimpledemo.ui.userlist.components.UserListItemCompose
+import com.example.gitsimpledemo.ui.userlist.components.UserListItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -83,7 +83,7 @@ import kotlinx.coroutines.launch
 /**
  * Author: Ryu
  * Date: 2024/05/22
- * Description:
+ * Description:first page,git user list
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -216,7 +216,7 @@ fun UserListScreen(
     when {
         // ...
         openAlertDialog.value -> {
-            AlertDialogExample(
+            AlertDialogExit(
                 onDismissRequest = { openAlertDialog.value = false },
                 onConfirmation = {
                     openAlertDialog.value = false
@@ -291,7 +291,7 @@ fun UserListScreen(
 
                                     }
                                 ) {
-                                    UserListItemCompose(state.userList[itemContent])
+                                    UserListItem(state.userList[itemContent])
                                 }
                             }
                             if (state.hasMore) {

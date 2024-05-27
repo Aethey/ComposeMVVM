@@ -3,7 +3,7 @@ package com.example.gitsimpledemo.model.entity
 /**
  * Author: Ryu
  * Date: 2024/05/26
- * Description:
+ * Description: GraphQLRequestEntity
  */
 
 

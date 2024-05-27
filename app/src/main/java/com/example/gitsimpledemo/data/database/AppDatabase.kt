@@ -12,7 +12,7 @@ import com.example.gitsimpledemo.model.entity.SearchHistoryEntity
 /**
  * Author: Ryu
  * Date: 2024/05/24
- * Description:
+ * Description: database init
  */
 
 @Database(entities = [SearchHistoryEntity::class, LanguageColorEntity::class], version = 2)
@@ -22,8 +22,8 @@ abstract class AppDatabase : RoomDatabase() {
 }
 
 val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-    override fun migrate(database: SupportSQLiteDatabase) {
+    override fun migrate(db: SupportSQLiteDatabase) {
         // 创建新的表
-        database.execSQL("CREATE TABLE IF NOT EXISTS `language_colors` (`language` TEXT NOT NULL, `color` TEXT NOT NULL, PRIMARY KEY(`language`))")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `language_colors` (`language` TEXT NOT NULL, `color` TEXT NOT NULL, PRIMARY KEY(`language`))")
     }
 }

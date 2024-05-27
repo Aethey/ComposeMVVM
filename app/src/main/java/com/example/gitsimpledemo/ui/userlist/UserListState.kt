@@ -1,9 +1,8 @@
 package com.example.gitsimpledemo.ui.userlist
 
-import com.example.gitsimpledemo.util.Trie
 import com.example.gitsimpledemo.model.entity.SearchHistoryEntity
-import com.example.gitsimpledemo.model.entity.UserEntity
 import com.example.gitsimpledemo.model.entity.UserEntityList
+import com.example.gitsimpledemo.util.Trie
 
 /**
  * Author: Ryu
@@ -11,74 +10,45 @@ import com.example.gitsimpledemo.model.entity.UserEntityList
  * Description:
  */
 data class UserListState(
-    /**
-     * List of user data
-     */
+    // Contains the list of users. This list is displayed on the user list screen.
     val userList: UserEntityList = emptyList(),
 
-    /**
-     * Determine the state of page refresh
-     */
+    // Indicates whether the data in the list is currently being refreshed.
     val isRefreshing: Boolean = false,
 
-    /**
-     * Determine the state of page data loading
-     */
+    // Indicates whether data for the list is currently being loaded.
     val isLoading: Boolean = false,
 
-    /**
-     * Determine if there is more data to load
-     */
+    // Indicates whether there are more items to load, used for implementing pagination.
     val hasMore: Boolean = true,
 
-    /**
-     * Determine if the search user page is open
-     */
+    // Indicates whether the search interface in the user list is open.
     val isSearching: Boolean = false,
 
-    /**
-     * Determine if the list is scrolling
-     */
+    // Indicates if the list is currently being scrolled.
     val isScrolling: Boolean = false,
 
-    /**
-     * Determine if the list is scrolled to the top
-     */
+    // Indicates if the list is scrolled to the top item.
     val isShowTopItem: Boolean = true,
 
-    /**
-     * Determine if the network is error
-     */
+    // Indicates if there is a network error affecting data fetching.
     val isError: Boolean = false,
 
-    /**
-     * Current page number of the list data
-     */
+    // Current page number of the list data.
     val currentPage: Int = 0,
 
-    /**
-     * Starting data ID for loading more data
-     */
+    // Starting data ID for loading more data, used in pagination.
     val since: Long = 0,
 
-    /**
-     * Trie structure for search history records
-     */
+    // Trie structure for managing search history records.
     val trie: Trie = Trie(),
 
-    /**
-     * List of search history records
-     */
+    // List of search history records.
     val searchHistory: List<SearchHistoryEntity> = emptyList(),
 
-    /**
-     * Current search query
-     */
-    val searchQuery: String ="",
+    // Current search query.
+    val searchQuery: String = "",
 
-    /**
-     * Error message
-     */
-    val errorMessage: String = "",
-
+    // Error message to be displayed in case of an error.
+    val errorMessage: String = ""
 )

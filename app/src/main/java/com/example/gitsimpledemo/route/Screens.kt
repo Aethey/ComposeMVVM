@@ -3,7 +3,7 @@ package com.example.gitsimpledemo.route
 /**
  * Author: Ryu
  * Date: 2024/05/22
- * Description:
+ * Description: init routes
  */
 sealed class Screens(val route: String) {
     data object Login : Screens("login")

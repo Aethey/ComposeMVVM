@@ -31,11 +31,11 @@ import com.example.gitsimpledemo.model.entity.UserEntity
 /**
  * Author: Ryu
  * Date: 2024/05/24
- * Description:
+ * Description: UserListItem
  */
 
 @Composable
-fun UserListItemCompose (content: UserEntity){
+fun UserListItem (content: UserEntity){
     Box(
         modifier = Modifier
             .height(80.dp)
@@ -74,7 +74,7 @@ fun UserListItemCompose (content: UserEntity){
 @Preview
 @Composable
 fun SimpleComposablePreview() {
-    UserListItemCompose(UserEntity(
+    UserListItem(UserEntity(
         id = 1,
         login = "Ryu",
         avatarUrl = "https://avatars.githubusercontent.com/u/1?v=4"

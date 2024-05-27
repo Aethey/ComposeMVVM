@@ -1,10 +1,11 @@
 package com.example.gitsimpledemo.model.entity
+
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Author: Ryu
  * Date: 2024/05/24
- * Description:
+ * Description: ResponseEntity
  */
 data class ResponseEntity(
     val id: Long,

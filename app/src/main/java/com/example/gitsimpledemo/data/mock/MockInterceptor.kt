@@ -10,7 +10,7 @@ import okhttp3.ResponseBody
 /**
  * Author: Ryu
  * Date: 2024/05/25
- * Description:
+ * Description:when true, load local mock data
  */
 
 class MockInterceptor(private val context: Context) : Interceptor {

@@ -10,20 +10,20 @@ import com.example.gitsimpledemo.model.entity.UserEntityList
 /**
  * Author: Ryu
  * Date: 2024/05/23
- * Description:
+ * Description: UserListRepository
  */
 class UserListRepository(private val apiService: ApiService) {
     private val pageSize = Constants.PAGE_SIZE
 
-    suspend fun getData(since:Long): NetworkResult<UserEntityList> {
+    suspend fun getData(since: Long): NetworkResult<UserEntityList> {
         return callApiService {
-            apiService.listUsers(perPage = pageSize, since = since )
+            apiService.listUsers(perPage = pageSize, since = since)
         }
     }
 
-    suspend fun searchUsers(query: String,page:Int): NetworkResult<List<UserEntity>> {
+    suspend fun searchUsers(query: String, page: Int): NetworkResult<List<UserEntity>> {
         return callApiService {
-            apiService.searchUsers(perPage = pageSize,query = query, page = page).items
+            apiService.searchUsers(perPage = pageSize, query = query, page = page).items
         }
     }
 }

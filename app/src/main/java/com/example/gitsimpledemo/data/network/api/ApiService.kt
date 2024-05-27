@@ -19,7 +19,7 @@ import java.io.IOException
 /**
  * Author: Ryu
  * Date: 2024/05/24
- * Description:
+ * Description: ApiService
  */
 
 interface ApiService {
@@ -52,9 +52,11 @@ interface ApiService {
         @Query("since") since: Long
     ): ResponseListEntity
 
+    // getUserDetail(userinfo)
     @GET("users/{username}")
     suspend fun getUserDetail(@Path("username") username: String): UserDetailEntity
 
+    // get user's repositories(GraphQL)
     @POST("graphql")
     suspend fun getRepoListGraphQL(@Body body: GraphQLRequestBody): RepoGraphQLResponseEntity
 

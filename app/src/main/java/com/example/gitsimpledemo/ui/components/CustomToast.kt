@@ -16,11 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,7 +39,7 @@ import kotlinx.coroutines.delay
 /**
  * Author: Ryu
  * Date: 2024/05/24
- * Description:
+ * Description: custom toast when data no more
  */
 
 @Composable
@@ -122,7 +120,8 @@ fun CustomToast(
     ) {
         Box(
             modifier = Modifier
-                .height(boxHeight.value).width(boxWidth.value)
+                .height(boxHeight.value)
+                .width(boxWidth.value)
                 .offset(y = slideY.value)
                 .clip(clipShape.value)
                 .background(getColorForMessageType(messageType))
@@ -133,12 +132,14 @@ fun CustomToast(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
-                ){
+                ) {
                     Image(
                         painterResource(R.drawable.cry),
                         contentDescription = "",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.height(24.dp).width(24.dp)
+                        modifier = Modifier
+                            .height(24.dp)
+                            .width(24.dp)
                     )
                     Text(
                         text = message,
@@ -154,21 +155,22 @@ fun CustomToast(
 
             if (dismissCallback.value) onDismissCallback()
         }
-    }}
-
-    enum class MessageType {
-        SUCCESS,
-        ERROR,
-        DEFAULT,
-        DYNAMIC,
     }
+}
 
-    @Composable
-    fun getColorForMessageType(messageType: MessageType): Color {
-        return when (messageType) {
-            MessageType.SUCCESS -> Color.Green
-            MessageType.ERROR -> Color.Red
-            MessageType.DYNAMIC -> Color.White
-            MessageType.DEFAULT -> Color.White
-        }
+enum class MessageType {
+    SUCCESS,
+    ERROR,
+    DEFAULT,
+    DYNAMIC,
+}
+
+@Composable
+fun getColorForMessageType(messageType: MessageType): Color {
+    return when (messageType) {
+        MessageType.SUCCESS -> Color.Green
+        MessageType.ERROR -> Color.Red
+        MessageType.DYNAMIC -> Color.White
+        MessageType.DEFAULT -> Color.White
     }
+}

@@ -27,13 +27,13 @@ import com.example.gitsimpledemo.R
 /**
  * Author: Ryu
  * Date: 2024/05/25
- * Description:
+ * Description: show when error
  */
 
 @Composable
 fun ErrorPage(
     onRefresh: () -> Unit
-){
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -70,7 +70,7 @@ fun ErrorPage(
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp)) // Adjust spacing
-                    Text("Refresh", fontSize = 16.sp,color = Color.Black)
+                    Text("Refresh", fontSize = 16.sp, color = Color.Black)
                 }
             )
 
@@ -81,7 +81,7 @@ fun ErrorPage(
 
 @Preview
 @Composable
-fun ErrorPagePreview(){
+fun ErrorPagePreview() {
     ErrorPage(onRefresh = {
         println("let us onRefresh")
     })

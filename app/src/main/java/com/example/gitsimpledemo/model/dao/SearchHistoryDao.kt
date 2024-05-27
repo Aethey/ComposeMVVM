@@ -11,7 +11,7 @@ import com.example.gitsimpledemo.model.entity.SearchHistoryEntity
 /**
  * Author: Ryu
  * Date: 2024/05/24
- * Description:
+ * Description: control SearchHistory data
  */
 
 @Dao

@@ -6,14 +6,11 @@ import com.example.gitsimpledemo.data.database.AppDatabase
 import com.example.gitsimpledemo.data.database.MIGRATION_1_2
 import com.example.gitsimpledemo.data.network.api.RetrofitManager
 import com.example.gitsimpledemo.util.LanguageColorManager
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.embedding.engine.FlutterEngineCache
-import io.flutter.embedding.engine.dart.DartExecutor
 
 /**
  * Author: Ryu
  * Date: 2024/05/22
- * Description:
+ * Description: Application init db,Retrofit and some utils
  */
 class Application : Application() {
     companion object {
@@ -21,32 +18,20 @@ class Application : Application() {
             private set
     }
 
-    private lateinit var flutterEngine: FlutterEngine
     lateinit var database: AppDatabase
         private set
 
     override fun onCreate() {
         super.onCreate()
         instance = this
-//        Instantiate a room database
+        // init retrofit
         RetrofitManager.initialize(this)
+        //Instantiate a room database
         database = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "app-database"
         ).addMigrations(MIGRATION_1_2).build()
+        // init language color manager
         LanguageColorManager.initialize(this)
-
-        // Instantiate a FlutterEngine.
-        flutterEngine = FlutterEngine(this)
-
-        // Start executing Dart code to pre-warm the FlutterEngine.
-        flutterEngine.dartExecutor.executeDartEntrypoint(
-            DartExecutor.DartEntrypoint.createDefault()
-        )
-
-        // Cache the FlutterEngine to be used by FlutterActivity.
-        FlutterEngineCache
-            .getInstance()
-            .put("flutter_engine_id", flutterEngine)
     }
 }

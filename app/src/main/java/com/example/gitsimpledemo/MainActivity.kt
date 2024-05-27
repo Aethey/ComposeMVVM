@@ -15,6 +15,11 @@ import com.example.gitsimpledemo.ui.theme.GitSimpleDemoTheme
 import com.example.gitsimpledemo.ui.userdetail.UserDetailScreen
 import com.example.gitsimpledemo.ui.userlist.UserListScreen
 
+/**
+ * Author: Ryu
+ * Date: 2024/05/22
+ * Description: MainActivity, init navController
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

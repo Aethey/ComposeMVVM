@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 /**
  * Author: Ryu
  * Date: 2024/05/26
- * Description:
+ * Description: LanguageColorEntity
  */
 @Entity(tableName = "language_colors")
 data class LanguageColorEntity(

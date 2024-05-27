@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 /**
  * Author: Ryu
  * Date: 2024/05/26
- * Description:
+ * Description: time line style item
  */
 
 @Composable
@@ -34,7 +34,6 @@ fun TimeLineItem(
         modifier = Modifier
             .wrapContentSize()
             .drawBehind {
-                // 2. draw a circle here ->
                 val circleRadiusInPx = circleParameters.radius.toPx()
                 drawCircle(
                     color = circleParameters.backgroundColor,

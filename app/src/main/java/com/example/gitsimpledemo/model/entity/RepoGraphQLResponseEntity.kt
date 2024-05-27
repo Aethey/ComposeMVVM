@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 /**
  * Author: Ryu
  * Date: 2024/05/26
- * Description:
+ * Description: RepoGraphQLResponseEntity
  */
 
 

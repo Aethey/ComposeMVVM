@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 /**
  * Author: Ryu
  * Date: 2024/05/24
- * Description:
+ * Description: UserEntity
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UserEntity(

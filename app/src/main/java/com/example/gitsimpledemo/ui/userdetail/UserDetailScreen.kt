@@ -12,12 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ListItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
@@ -54,7 +51,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.gitsimpledemo.Application
 import com.example.gitsimpledemo.R
-import com.example.gitsimpledemo.model.entity.RepoItem
 import com.example.gitsimpledemo.ui.userdetail.components.TimeLineView
 import com.example.gitsimpledemo.util.CommonUtils
 import com.kevinnzou.web.LoadingState
@@ -64,7 +60,7 @@ import com.kevinnzou.web.rememberWebViewState
 /**
  * Author: Ryu
  * Date: 2024/05/22
- * Description:
+ * Description: user detail screen
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,8 +74,7 @@ fun UserDetailScreen(
             languageColorDao = Application.instance.database.languageColorDao()
         )
     )
-
-//  initState
+    // initState
     val state = viewModel.uiState
     //  init widget param
     //  screen size
@@ -87,11 +82,12 @@ fun UserDetailScreen(
     val showModal = remember { mutableStateOf(false) }
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp
-// init view
+    // init view
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    // webview
     if (showModal.value) {
-        ModalBottomSheetSample(
+        ModalBottomWebView(
             onDismissRequest = { showModal.value = false }, url = state.currentUrl
         )
     }
@@ -114,7 +110,6 @@ fun UserDetailScreen(
             }
 
         }
-        UserRepositoriesContent()
     }
 }
 
@@ -237,7 +232,7 @@ fun CustomAppBar(scrollBehavior: TopAppBarScrollBehavior, state: UserDetailState
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun ModalBottomSheetSample(onDismissRequest: () -> Unit, url: String) {
+fun ModalBottomWebView(onDismissRequest: () -> Unit, url: String) {
     val sheetState = rememberModalBottomSheetState()
     ModalBottomSheet(
         sheetState = sheetState,
@@ -274,25 +269,4 @@ fun CustomWebView(url: String) {
             )
 
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
-@Composable
-fun UserInfoContent(repoList: List<RepoItem>) {
-    LazyColumn() {
-        items(repoList.size) { index ->
-            ListItem(
-            ) {
-                Text("this is item${repoList[index].node.name}")
-            }
-
-
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun UserRepositoriesContent() {
-
 }

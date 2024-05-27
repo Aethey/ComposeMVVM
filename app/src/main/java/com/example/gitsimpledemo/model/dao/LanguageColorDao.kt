@@ -9,7 +9,7 @@ import com.example.gitsimpledemo.model.entity.LanguageColorEntity
 /**
  * Author: Ryu
  * Date: 2024/05/26
- * Description:
+ * Description: control LanguageColor data
  */
 @Dao
 interface LanguageColorDao {

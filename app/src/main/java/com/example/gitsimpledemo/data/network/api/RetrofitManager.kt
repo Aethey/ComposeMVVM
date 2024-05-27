@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Author: Ryu
  * Date: 2024/05/24
- * Description:
+ * Description: RetrofitManager
  */
 
 object RetrofitManager {
@@ -39,7 +39,7 @@ object RetrofitManager {
                 .build()
             chain.proceed(request)
         }
-        
+
         // Build OkHttpClient with interceptors and timeouts
         val clientBuilder = OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor) // Add logging interceptor
