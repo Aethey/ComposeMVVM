@@ -65,7 +65,9 @@ import com.example.gitsimpledemo.model.entity.SearchType
 import com.example.gitsimpledemo.model.entity.SearchViewType
 import com.example.gitsimpledemo.route.Screens
 import com.example.gitsimpledemo.ui.components.CustomLazyColumn
+import com.example.gitsimpledemo.ui.components.EmptyPage
 import com.example.gitsimpledemo.ui.components.ErrorPage
+import com.example.gitsimpledemo.ui.components.InitPage
 import com.example.gitsimpledemo.ui.userlist.components.AlertDialogExit
 import com.example.gitsimpledemo.ui.userlist.components.SearchView
 import com.example.gitsimpledemo.ui.userlist.components.UserListItem
@@ -263,33 +265,39 @@ fun UserListScreen(
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
                 ) {
+                    if (state.userList.isEmpty()) {
+                        InitPage {}
+                    } else if (state.isEmpty) {
+                        EmptyPage {}
+                    } else {
+                        CustomLazyColumn(
+                            listState = listState,
+                            pullRefreshState = pullRefreshState,
+                            dataList = state.userList,
+                            listItemContent = @Composable { index: Int ->
+                                UserListItem(state.userList[index])
+                            },
+                            modifier = Modifier.padding(
+                                top = paddingValues.calculateTopPadding(),
+                                start = 4.dp,
+                                end = 4.dp,
+                                bottom = 4.dp,
+                            ),
+                            hasMoreAction = {
+                                LaunchedEffect(Unit) {
+                                    viewModel.onLoadMoreData()
+                                }
+                            },
+                            itemClickEvent = {
+                                navController.navigate(Screens.Detail.createRoute(it.login))
+                            },
+                            isRefreshing = state.isRefreshing,
+                            hasMore = state.hasMore,
+                            isShowCustomToast = (!state.hasMore && state.isLoadingMore),
+                            itemClickable = true
+                        )
+                    }
 
-                    CustomLazyColumn(
-                        listState = listState,
-                        pullRefreshState = pullRefreshState,
-                        dataList = state.userList,
-                        listItemContent = @Composable { index: Int ->
-                            UserListItem(state.userList[index])
-                        },
-                        modifier = Modifier.padding(
-                            top = paddingValues.calculateTopPadding(),
-                            start = 4.dp,
-                            end = 4.dp,
-                            bottom = 4.dp,
-                        ),
-                        hasMoreAction = {
-                            LaunchedEffect(Unit) {
-                                viewModel.onLoadMoreData()
-                            }
-                        },
-                        itemClickEvent = {
-                            navController.navigate(Screens.Detail.createRoute(it.login))
-                        },
-                        isRefreshing = state.isRefreshing,
-                        hasMore = state.hasMore,
-                        isShowCustomToast = (!state.hasMore && state.isLoadingMore),
-                        itemClickable = true
-                    )
                 }
             }
         }
@@ -299,7 +307,9 @@ fun UserListScreen(
         enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
         exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
     ) {
-        ErrorPage(onRefresh = { viewModel.onRefreshData() })
+        ErrorPage {
+            viewModel.onRefreshData()
+        }
     }
 }
 

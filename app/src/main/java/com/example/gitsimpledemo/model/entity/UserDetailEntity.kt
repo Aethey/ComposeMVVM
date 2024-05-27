@@ -16,7 +16,7 @@ data class UserDetailEntity(
     @JsonProperty("id")
     val id: Long,
     @JsonProperty("name")
-    val name: String,
+    val name: String? = null,
     @JsonProperty("followers")
     val followers: Long,
     @JsonProperty("following")

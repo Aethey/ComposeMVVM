@@ -41,6 +41,9 @@ data class UserDetailState(
     // True if an error occurred during data fetching, otherwise false.
     val isError: Boolean = false,
 
+    // True if data is empty, otherwise false.
+    val isEmpty: Boolean = false,
+
     // True if data is currently being loaded, otherwise false.
     val isLoading: Boolean = false,
 

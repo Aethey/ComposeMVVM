@@ -19,7 +19,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -55,6 +54,8 @@ import coil.request.ImageRequest
 import com.example.gitsimpledemo.Application
 import com.example.gitsimpledemo.R
 import com.example.gitsimpledemo.ui.components.CustomLazyColumn
+import com.example.gitsimpledemo.ui.components.EmptyPage
+import com.example.gitsimpledemo.ui.components.InitPage
 import com.example.gitsimpledemo.ui.userdetail.components.TimeLineItem
 import com.example.gitsimpledemo.util.CommonUtils
 import com.kevinnzou.web.LoadingState
@@ -106,43 +107,57 @@ fun UserDetailScreen(
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            CustomAppBar(scrollBehavior, state)
+            CustomAppBar(scrollBehavior, state) {
+                navController.popBackStack()
+            }
         }
     ) { paddingValues ->
+        if (state.listRepositories.isEmpty()) {
+            InitPage {}
+        } else if (state.isEmpty) {
+            EmptyPage {
+                viewModel.onRefreshData()
+            }
+        } else {
+            CustomLazyColumn(
+                listState = listState,
+                pullRefreshState = pullRefreshState,
+                dataList = state.listRepositories,
+                listItemContent = @Composable { index: Int ->
+                    TimeLineItem(state.listRepositories, index, screenWidth * 4 / 5) {
+                        showModal.value = true
+                        state.currentUrl = it
+                    }
+                },
+                modifier = Modifier
+                    .padding(
+                        top = paddingValues.calculateTopPadding(),
+                    )
+                    .padding(16.dp),
+                hasMoreAction = {
+                    LaunchedEffect(Unit) {
+                        viewModel.onLoadMoreData()
+                    }
+                },
+                isRefreshing = state.isRefreshing,
+                hasMore = state.hasMore,
+                isShowCustomToast = (!state.hasMore && state.isLoadingMore),
+                itemClickEvent = {},
+                itemClickable = false
+            )
+        }
 
-        CustomLazyColumn(
-            listState = listState,
-            pullRefreshState = pullRefreshState,
-            dataList = state.listRepositories,
-            listItemContent = @Composable { index: Int ->
-                TimeLineItem(state.listRepositories, index, screenWidth * 4 / 5) {
-                    showModal.value = true
-                    state.currentUrl = it
-                }
-            },
-            modifier = Modifier
-                .padding(
-                    top = paddingValues.calculateTopPadding(),
-                )
-                .padding(16.dp),
-            hasMoreAction = {
-                LaunchedEffect(Unit) {
-                    viewModel.onLoadMoreData()
-                }
-            },
-            isRefreshing = state.isRefreshing,
-            hasMore = state.hasMore,
-            isShowCustomToast = (!state.hasMore && state.isLoadingMore),
-            itemClickEvent = {},
-            itemClickable = false
-        )
     }
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomAppBar(scrollBehavior: TopAppBarScrollBehavior, state: UserDetailState) {
+fun CustomAppBar(
+    scrollBehavior: TopAppBarScrollBehavior,
+    state: UserDetailState,
+    onBackAction: () -> Unit
+) {
 
     LargeTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -172,7 +187,7 @@ fun CustomAppBar(scrollBehavior: TopAppBarScrollBehavior, state: UserDetailState
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.Start
                     ) {
-                        if (state.name.isNotBlank()) {
+                        if (state.name != "") {
                             Text(
                                 state.name,
                                 maxLines = 1,
@@ -183,8 +198,8 @@ fun CustomAppBar(scrollBehavior: TopAppBarScrollBehavior, state: UserDetailState
                         Text(
                             state.userName,
                             maxLines = 1,
-                            style = if (state.name.isBlank()) {
-                                MaterialTheme.typography.titleMedium
+                            style = if (state.name == "") {
+                                MaterialTheme.typography.titleLarge
                             } else MaterialTheme.typography.bodyMedium,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -237,21 +252,23 @@ fun CustomAppBar(scrollBehavior: TopAppBarScrollBehavior, state: UserDetailState
             }
         },
         navigationIcon = {
-            IconButton(onClick = { /* do something */ }) {
+            IconButton(onClick = {
+                onBackAction()
+            }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Localized description"
                 )
             }
         },
-        actions = {
-            IconButton(onClick = { /* do something */ }) {
-                Icon(
-                    imageVector = Icons.Filled.Settings,
-                    contentDescription = "Localized description"
-                )
-            }
-        },
+        //actions = {
+        //    IconButton(onClick = { /* do something */ }) {
+        //        Icon(
+        //            imageVector = Icons.Filled.Settings,
+        //            contentDescription = "Localized description"
+        //        )
+        //    }
+        //},
         scrollBehavior = scrollBehavior
     )
 

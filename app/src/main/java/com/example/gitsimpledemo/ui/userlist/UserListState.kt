@@ -37,6 +37,9 @@ data class UserListState(
     // Indicates if there is a network error affecting data fetching.
     val isError: Boolean = false,
 
+    // True if data is empty, otherwise false.
+    val isEmpty: Boolean = false,
+
     // Current page number of the list data.
     val currentPage: Int = 0,
 

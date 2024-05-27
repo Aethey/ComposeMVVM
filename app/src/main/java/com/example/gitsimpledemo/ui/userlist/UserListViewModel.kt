@@ -180,7 +180,8 @@ class UserListViewModel(
                             since = if (this.data.isEmpty()) 0 else this.data.last().id,
                             isRefreshing = false,
                             isError = false,
-                            isLoadingMore = false
+                            isLoadingMore = false,
+                            isEmpty = uiState.userList.isEmpty() && this.data.isEmpty(),
                         )
                     }
 
@@ -193,7 +194,6 @@ class UserListViewModel(
                             isError = true,
                             isLoadingMore = false
                         )
-
                     }
 
                     NetworkResult.Loading -> {

@@ -54,6 +54,7 @@ class UserDetailViewModel(
                             endCursor = if (hasMore) {
                                 this.data.data.user.repositories.pageInfo.endCursor
                             } else uiState.endCursor,
+                            isEmpty = uiState.listRepositories.isEmpty() && this.data.data.user.repositories.edges.isEmpty(),
                         )
                     }
 
@@ -64,6 +65,7 @@ class UserDetailViewModel(
                             isRepositoriesLoading = false,
                             isLoadingMore = false,
                             errorMessage = this.exception.message ?: "net error",
+                            isEmpty = uiState.listRepositories.isEmpty(),
                         )
                     }
 
@@ -86,7 +88,7 @@ class UserDetailViewModel(
                             avatarUrl = this.data.avatarUrl,
                             followers = this.data.followers,
                             following = this.data.following,
-                            name = this.data.name,
+                            name = this.data.name ?: uiState.name,
                             location = this.data.location ?: "No place info",
                         )
                     }
