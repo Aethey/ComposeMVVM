@@ -16,8 +16,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven(url = "https://storage.googleapis.com/download.flutter.io")
-        maven(url = "git_simple_flutter_moudle/build/host/outputs/repo")
+        //maven(url = "https://storage.googleapis.com/download.flutter.io")
+        //maven(url = "git_simple_flutter_moudle/build/host/outputs/repo")
     }
 
 }
