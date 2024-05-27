@@ -23,7 +23,6 @@ abstract class AppDatabase : RoomDatabase() {
 
 val MIGRATION_1_2: Migration = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        // 创建新的表
         db.execSQL("CREATE TABLE IF NOT EXISTS `language_colors` (`language` TEXT NOT NULL, `color` TEXT NOT NULL, PRIMARY KEY(`language`))")
     }
 }

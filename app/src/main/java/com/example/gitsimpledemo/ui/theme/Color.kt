@@ -21,4 +21,4 @@ val Purple: Color = Color(0xffc471ed)
 val Coral: Color = Color(0xfff64f59)
 val LightCoral: Color = Color(0xfffbaeb2)
 val LanguageDefault: Color = Color(0xffaf8260)
-val LanguageDefaultString: String = "#AF8260"
+const val LanguageDefaultString: String = "#AF8260"

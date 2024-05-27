@@ -74,7 +74,6 @@ fun SearchView(
                                 },
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            println("searchHistory is ${searchHistory[i].searchQuery}")
                             Image(
                                 painter = painterResource(id = R.drawable.header_placeholder),
                                 contentDescription = null,

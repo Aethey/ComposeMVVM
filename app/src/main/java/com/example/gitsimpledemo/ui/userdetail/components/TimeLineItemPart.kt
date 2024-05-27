@@ -53,7 +53,6 @@ fun TimeLineItemPart(
         content(
             Modifier
                 .padding(
-                    // 2. we apply our paddings
                     start = contentStartOffset,
                     bottom = if (position != TimelineNodePosition.LAST) {
                         spacer

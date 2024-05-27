@@ -51,7 +51,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.gitsimpledemo.Application
 import com.example.gitsimpledemo.R
 import com.example.gitsimpledemo.ui.components.CustomLazyColumn
 import com.example.gitsimpledemo.ui.components.EmptyPage
@@ -78,8 +77,7 @@ fun UserDetailScreen(
     val viewModel: UserDetailViewModel = viewModel(
         factory = UserDetailViewModelFactory(
             username = username,
-            usertype = usertype,
-            languageColorDao = Application.instance.database.languageColorDao()
+            usertype = usertype
         )
     )
     // initState
@@ -218,7 +216,6 @@ fun CustomAppBar(
                         modifier = Modifier.size(16.dp)
 
                     )
-                    print("state.location is ${state.location}")
                     Text(
                         if (state.location == "") "No place info" else state.location,
                         style = MaterialTheme.typography.bodySmall,

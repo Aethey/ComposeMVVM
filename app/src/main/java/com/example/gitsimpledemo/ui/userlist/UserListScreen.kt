@@ -131,7 +131,6 @@ fun UserListScreen(
     }
 
     fun onSearch(searchQuery: String?) {
-        print("click -> $searchQuery")
         when (searchQuery) {
             null -> viewModel.onKeyboardSearch(SearchType.USERNAME)
             else -> viewModel.onClickSearch(SearchType.USERNAME, searchQuery)
@@ -456,7 +455,7 @@ fun SearchBar(
         decorationBox = { innerTextField ->
             if (searchQuery.isEmpty()) {
                 Text(
-                    text = "Search in Github",
+                    text = stringResource(id = R.string.text_input_hint),
                     style = TextStyle(color = Color.Gray, fontSize = 12.sp)
                 )
             }

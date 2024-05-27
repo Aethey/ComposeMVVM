@@ -36,10 +36,8 @@ class MainActivity : ComponentActivity() {
 fun App() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Screens.List.route) {
-        //NavHost(navController = navController, startDestination = Screens.Detail.route) {
-//        composable(Screens.Home.route) { HomeScreen() }
+
         composable(Screens.List.route) { UserListScreen(navController = navController) }
-        //composable(Screens.Detail.route) { UserDetailScreen(navController = navController) }
         composable(
             route = Screens.Detail.route,
             arguments = listOf(

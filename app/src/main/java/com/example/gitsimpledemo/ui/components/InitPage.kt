@@ -24,7 +24,7 @@ import com.example.gitsimpledemo.R
 /**
  * Author: Ryu
  * Date: 2024/05/25
- * Description: show when error
+ * Description: show when first fetch data
  */
 
 @Composable

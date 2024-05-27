@@ -50,8 +50,14 @@ class UserListViewModel(
         }
     }
 
+    /*
+    when keyboard search button clicked
+    check search query is empty or not
+    if not empty add search query to history then fetch data
+    else fetch data with init (user null)
+    then change search view state show list
+     */
     fun onKeyboardSearch(type: SearchType) {
-        println("type is onKeyboardSearch  ${uiState.searchQuery}")
         uiState = uiState.copy(searchQuery = uiState.searchQueryInput)
         viewModelScope.launch {
             if (uiState.searchQueryInput.isNotBlank()) {
@@ -64,9 +70,14 @@ class UserListViewModel(
         }
     }
 
+    /*
+    click search mean click item in history list
+    fetch data with item search query
+    then change search view state show list
+     */
     fun onClickSearch(type: SearchType, searchQuery: String) {
-        println("type is onClickSearch +++++ searchQuery is  $searchQuery")
         viewModelScope.launch {
+            // delete feature history count for sort
             //val newHistory = SearchHistoryEntity(searchQuery = searchQuery, type = type)
             //  searchQuery count  += 1 in history
             onGetSearchUserList(searchQuery)
@@ -74,6 +85,13 @@ class UserListViewModel(
 
     }
 
+    /*
+    for realtime refresh search history list
+    control keyboard input value in viewmodel(searchQueryInput)
+    searchQueryInput is different from searchQuery
+    when fetch request,add searchQueryInput to history and
+    searchQuery = searchQueryInput
+     */
     fun onRealtimeUpdateSearchQuery(query: String) {
         viewModelScope.launch {
             uiState = uiState.copy(
@@ -94,6 +112,7 @@ class UserListViewModel(
          */
     }
 
+    // clear search history
     fun onClearSearchHistory() {
         viewModelScope.launch {
             searchHistoryDao.clearSearchHistory()
@@ -101,6 +120,15 @@ class UserListViewModel(
         }
     }
 
+
+    /*
+    control search view state
+    COMMON_CLOSE is close search view when fetch request get data
+    SEARCH_CLOSE is old feature
+    CLEAR_CLOSE  is old feature
+    OPEN is open search view
+
+     */
     fun onUpdateSearchViewState(searchState: SearchViewType) {
         viewModelScope.launch {
             uiState = when (searchState) {
@@ -117,10 +145,12 @@ class UserListViewModel(
         }
     }
 
+    // get user listview scrollState, control FAB visible
     fun onUpdateUserListScrollState(scrollState: Boolean) {
         uiState = uiState.copy(isScrolling = scrollState)
     }
 
+    // check user listview is show top item,control FAB style
     fun onCheckListIsShowTop(isShowTopItem: Boolean) {
         uiState = uiState.copy(isShowTopItem = isShowTopItem)
     }
@@ -141,6 +171,7 @@ class UserListViewModel(
         }
     }
 
+    // get userList with name
     private fun onGetSearchUserList(searchQuery: String) {
         if (searchQuery.isNotBlank()) {
             onGetSearchDataList(
@@ -172,7 +203,7 @@ class UserListViewModel(
         }
     }
 
-
+    // get user list without name,use since control loadMore state and paging
     private fun onGetDataList(
         since: Long,
         append: Boolean = false,
@@ -189,6 +220,7 @@ class UserListViewModel(
                             isError = false,
                             isLoadingMore = false,
                             isEmpty = uiState.userList.isEmpty() && this.data.isEmpty(),
+                            searchQuery = ""
                         )
                     }
 
@@ -211,6 +243,7 @@ class UserListViewModel(
         }
     }
 
+    // get user list with name,use page control loadMore state and paging
     private fun onGetSearchDataList(
         append: Boolean = false,
         page: Int,

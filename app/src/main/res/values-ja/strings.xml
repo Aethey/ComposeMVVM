@@ -8,4 +8,5 @@
     <string name="exit_dialog_sure">確認</string>
     <string name="exit_dialog_cancel">キャンセル</string>
     <string name="clear_history_button"> 履歴をクリアする</string>
+    <string name="text_input_hint">Github で検索</string>
 </resources>

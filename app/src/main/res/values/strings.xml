@@ -8,4 +8,5 @@
     <string name="exit_dialog_sure">Confirm</string>
     <string name="exit_dialog_cancel">Cancel</string>
     <string name="clear_history_button">clear history</string>
+    <string name="text_input_hint">search in Github</string>
 </resources>

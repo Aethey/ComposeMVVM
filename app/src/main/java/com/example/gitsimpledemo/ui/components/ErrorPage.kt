@@ -58,7 +58,6 @@ fun ErrorPage(
                     onRefresh()
                 },
                 content = {
-                    // Specify the icon using the icon parameter
                     Row(
                         modifier = Modifier.padding(8.dp),
                     ) {

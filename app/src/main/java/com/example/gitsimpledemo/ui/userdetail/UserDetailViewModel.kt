@@ -12,7 +12,6 @@ import com.example.gitsimpledemo.data.network.api.ApiService
 import com.example.gitsimpledemo.data.network.api.NetworkResult
 import com.example.gitsimpledemo.data.network.api.RetrofitManager
 import com.example.gitsimpledemo.data.repository.UserDetailResponse
-import com.example.gitsimpledemo.model.dao.LanguageColorDao
 import kotlinx.coroutines.launch
 
 /**
@@ -36,6 +35,10 @@ class UserDetailViewModel(
         onGetRepositories(username)
     }
 
+    /*
+     * Get repositories from GitHub GraphQL API
+     * result json is different for user and organization
+     */
     private fun onGetRepositories(
         userName: String,
         append: Boolean = false
@@ -125,6 +128,7 @@ class UserDetailViewModel(
         }
     }
 
+    // get user detail from GitHub API
     private fun onGetUserDetail(userName: String) {
         viewModelScope.launch {
             repository.getDataDetail(userName).apply {
@@ -174,7 +178,6 @@ class UserDetailViewModel(
 
 
 class UserDetailViewModelFactory(
-    private val languageColorDao: LanguageColorDao,
     private val username: String,
     private val usertype: String,
 ) :

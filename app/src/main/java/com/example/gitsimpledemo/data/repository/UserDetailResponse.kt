@@ -16,7 +16,6 @@ import com.example.gitsimpledemo.model.entity.UserDetailEntity
 class UserDetailResponse(private val apiService: ApiService) {
 
     suspend fun getDataDetail(userName: String): NetworkResult<UserDetailEntity> {
-        print("getDataDetail")
         return callApiService {
             apiService.getUserDetail(username = userName)
         }
