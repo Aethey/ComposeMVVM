@@ -1,12 +1,21 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kspRoom)
 }
 
+val localProperties = Properties()
+file("config.properties").inputStream().use {
+    localProperties.load(it)
+}
+val API_KEY = localProperties.getProperty("api_key") ?: ""
+
 android {
     namespace = "com.example.gitsimpledemo"
     compileSdk = 34
+    android.buildFeatures.buildConfig = true
 
     defaultConfig {
         applicationId = "com.example.gitsimpledemo"
@@ -24,6 +33,9 @@ android {
             // Filter for architectures supported by Flutter.
             abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
         }
+
+        buildConfigField("String", "API_KEY", "\"$API_KEY\"")
+        resValue("string", "api_key", API_KEY)
     }
 
     buildTypes {
