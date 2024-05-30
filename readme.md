@@ -3,6 +3,7 @@
 ## Description
 
 A simple GitHub client built using Jetpack Compose and follows the MVVM
+add api_key in local.properties then build
 
 ## Architecture
 
@@ -60,9 +61,6 @@ This project uses a number of third-party libraries:
 - [Language Color Resource](https://github.com/github-linguist/linguist/blob/master/lib/linguist/languages.yml)
 
 ## Screenshots
-
-Screenshots of the application are stored under the `simpleImage` folder at the same level as this
-README. Below are the images arranged in a 3x3 grid style:
 
 |                               |                               |                               |
 |:-----------------------------:|:-----------------------------:|:-----------------------------:|
