@@ -3,7 +3,8 @@
 ## Description
 
 A simple GitHub client built using Jetpack Compose and follows the MVVM
-add api_key in local.properties then build
+
+- add api_key in local.properties then build
 
 ## Architecture
 
