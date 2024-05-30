@@ -2,7 +2,6 @@ package com.example.gitsimpledemo.data.network.api
 
 import android.content.Context
 import com.example.gitsimpledemo.AppConfig
-import com.example.gitsimpledemo.GitConfig
 import com.example.gitsimpledemo.data.mock.MockInterceptor
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -36,7 +35,7 @@ object RetrofitManager {
         // Interceptor for adding headers to every HTTP request
         val headerInterceptor = Interceptor { chain ->
             val request = chain.request().newBuilder()
-                .addHeader(GitConfig.HEADER_AUTHORIZATION, GitConfig.HEADER_TOKEN)
+                .addHeader(AppConfig.HEADER_AUTHORIZATION, AppConfig.HEADER_TOKEN)
                 .build()
             chain.proceed(request)
         }

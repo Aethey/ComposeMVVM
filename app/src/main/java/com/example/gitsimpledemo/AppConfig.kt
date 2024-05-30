@@ -14,6 +14,10 @@ object AppConfig {
     const val USE_MOCK: Boolean = false
     const val TYPE_USER: String = "User"
     const val TYPE_ORGANIZATION: String = "Organization"
+    const val HEADER_AUTHORIZATION = "Authorization"
+    private const val HEADER_AUTHORIZATION_BEARER = "Bearer "
+    private const val HEADER_AUTHORIZATION_TOKEN = BuildConfig.API_KEY
+    const val HEADER_TOKEN = HEADER_AUTHORIZATION_BEARER + HEADER_AUTHORIZATION_TOKEN
     const val USER_DETAIL_MOCK_NAME: String = "Aethey"
     const val NO_MORE: String = "You've reached the end."
     const val EMPTY_DATA: String = "sorry,data empty now."
