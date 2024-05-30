@@ -132,7 +132,11 @@ class UserListViewModel(
     fun onUpdateSearchViewState(searchState: SearchViewType) {
         viewModelScope.launch {
             uiState = when (searchState) {
-                SearchViewType.COMMON_CLOSE -> uiState.copy(isSearching = false)
+                SearchViewType.COMMON_CLOSE -> uiState.copy(
+                    isSearching = false,
+                    searchQueryInput = ""
+                )
+
                 SearchViewType.CLEAR_CLOSE -> uiState.copy(
                     isSearching = false,
                     searchQuery = "",
