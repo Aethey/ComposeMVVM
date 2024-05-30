@@ -35,10 +35,10 @@ Image Processing: Coil.
 
 ## Screenshots
 
-|                               |                               |                           
+|                               |                               |
 |:-----------------------------:|:-----------------------------:|
-| ![Image 1](simpleImage/1.png) | ![Image 4](simpleImage/2.png) | 
-| ![Image 8](simpleImage/4.png) | ![Image 7](simpleImage/3.png) |
+| ![Image 1](simpleImage/1.png) | ![Image 4](simpleImage/4.png) |
+| ![Image 8](simpleImage/7.png) | ![Image 7](simpleImage/8.png) |
 
 ## License
 
