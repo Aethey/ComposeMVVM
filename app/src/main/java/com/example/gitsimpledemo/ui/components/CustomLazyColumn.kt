@@ -12,7 +12,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ListItem
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.PullRefreshState
-import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -59,8 +58,8 @@ fun <T> CustomLazyColumn(
         LazyColumn(
             state = listState,
             modifier = modifier
-                .fillMaxSize()
-                .pullRefresh(pullRefreshState),
+                .fillMaxSize(),
+            //.pullRefresh(pullRefreshState)
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(dataList.size) { index ->

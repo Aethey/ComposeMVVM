@@ -56,6 +56,7 @@ import com.example.gitsimpledemo.ui.components.CustomLazyColumn
 import com.example.gitsimpledemo.ui.components.EmptyPage
 import com.example.gitsimpledemo.ui.components.ErrorPage
 import com.example.gitsimpledemo.ui.components.InitPage
+import com.example.gitsimpledemo.ui.components.pinnedExitUntilCollapsedScrollBehavior
 import com.example.gitsimpledemo.ui.userdetail.components.TimeLineItem
 import com.example.gitsimpledemo.util.CommonUtils
 import com.kevinnzou.web.LoadingState
@@ -97,6 +98,11 @@ fun UserDetailScreen(
     // init view
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+    val scrollBehaviorModify = pinnedExitUntilCollapsedScrollBehavior(
+        canScroll = { listState.canScrollForward || listState.canScrollBackward }
+    )
+
     // webview
     if (showModal.value) {
         ModalBottomWebView(
@@ -105,10 +111,11 @@ fun UserDetailScreen(
     }
     Scaffold(
         modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
+            .nestedScroll(scrollBehaviorModify.nestedScrollConnection)
+            //.pullRefresh(pullRefreshState)
+            .fillMaxSize(),
         topBar = {
-            CustomAppBar(scrollBehavior, state) {
+            CustomAppBar(scrollBehaviorModify, state) {
                 navController.popBackStack()
             }
         }
